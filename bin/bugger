@@ -10,8 +10,9 @@ else
     id=$(sqlite3 $db "select id from bugger where timestop is null ;")
     if [[ ! -z "$id" ]]; then
         old_task=$(sqlite3 $db "select task from bugger where id = $id ;")
-        seconds_spent=$(sqlite3 db-bugger.db "SELECT (strftime('%s','now') - strftime('%s',timeStart))  from bugger where id = $id ;")
-        old_time=$(printf "%02u:%02u:%02u" $(($seconds_spent/10000)) $(($seconds_spent/100%100)) $(($seconds_spent%100)))
+        seconds_spent=$(sqlite3 $db "SELECT (strftime('%s','now') - strftime('%s',timeStart))  from bugger where id = $id ;")
+        old_time=$(printf "%02uh:%02um" $(($seconds_spent/10000)) $(($seconds_spent/100%100)))
+
     fi
 fi
 
