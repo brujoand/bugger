@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 cocoa='/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog'
-db='db-bugger.db'
+db=~/.bugger/bugger.db
 
 
 if [[ ! -f "$db" ]]; then

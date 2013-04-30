@@ -1,0 +1,72 @@
+#! /usr/bin/env bash
+
+####### EDIT ME! #######
+intervall=900
+buggerpath="$(pwd)/bin/bugger"
+####### Dragons ahead! #######
+
+
+
+####### This script will create folders an links needed for bugger #######
+create_config_dir(){
+    if [[ ! -d ~/.bugger ]]; then
+        mkdir ~/.bugger
+    fi
+}
+
+generate_job(){
+    cat > ~/Library/LaunchAgents/no.brujordet.bugger.plist <<- EOF
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>no.brujordet.bugger</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>$buggerpath</string>
+        </array>
+        <key>StandardErrorPath</key>
+        <string>/dev/null</string>
+        <key>StandardOutPath</key>
+        <string>/dev/null</string>
+        <key>StartInterval</key>
+        <integer>$intervall</integer>
+        <key>RunAtLoad</key>
+        <true/>
+    </dict>
+    </plist>
+EOF
+}
+
+start_bugger(){
+    launchctl load ~/Library/LaunchAgents/no.brujordet.bugger.plist
+}
+
+stop_bugger(){
+    launchctl unload ~/Library/LaunchAgents/no.brujordet.bugger.plist
+}
+
+
+
+############################
+
+case $1 in
+    install)
+        create_config_dir
+        generate_job
+    ;;
+    start)
+        start_bugger
+    ;;
+    stop)
+        stop_bugger
+    ;;
+    cleanup)
+        stop_bugger
+        rm ~/Library/LaunchAgents/no.brujordet.bugger.plist
+    ;;
+    *)
+        echo "usage: $0 (install|start|stop|cleanup)"
+    ;;
+esac
