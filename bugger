@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+
+cocoa='/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog'
+db='db-bugger.db'
+
+
+if [[ ! -f "$db" ]]; then
+    sqlite3 $db "create table bugger (id INTEGER PRIMARY KEY, task VARCHAR, timeStart DATETIME, timeStop DATETIME);"
+else
+    id=$(sqlite3 $db "select id from bugger where timestop is null ;")
+    if [[ ! -z "$id" ]]; then
+        old_task=$(sqlite3 $db "select task from bugger where id = $id ;")
+        old_time=$(sqlite3 db-bugger.db "SELECT (strftime('%s','now') - strftime('%s',timeStart))  from bugger where id = $id ;")
+    fi
+fi
+
+new_task=$($cocoa standard-inputbox --title "Bugger" --text "$old_task" --float --no-newline --no-cancel --informative-text "What are you working on? - $old_time" | grep -v 1)
+if [[ ! -z "$new_task" && "$new_task" != "$old_task" ]]; then
+    if [[ ! -z "$id" ]]; then
+        sqlite3 $db "update bugger set timeStop = DATETIME('now') where id=$id;"
+    fi
+    sqlite3 $db "insert into bugger values(null, \"$new_task\", DATETIME('now'), null);"
+fi
+
