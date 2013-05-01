@@ -1,13 +1,33 @@
 #! /usr/bin/env bash
 
-Launchd_plist=~/Library/LaunchAgents/no.brujordet.bugger.plist
+launchd_plist=~/Library/LaunchAgents/no.brujordet.bugger.plist
 
-load_configuration(){
+update_configuration(){
     if [[ ! -f ~/.bugger/bug.conf ]]; then
-        echo "Could not find config file!"
         create_config
     fi
+
     . ~/.bugger/bug.conf
+
+    if [[ ! -f ~/.bugger/bug.db ]]; then
+        create_empty_db
+    fi
+
+    if [[ ! -f $launchd_plist ]]; then
+        generate_job
+    fi
+
+    if [[ ! -f $bugger_cocoa ]]; then
+        echo "ERMEGERD CocoaDialog IS NOT INSTALLED!!"
+        echo "Get it here --> http://mstratman.github.io/cocoadialog/#download"
+        exit 1
+    fi
+}
+
+create_empty_db(){
+    echo "Creating database $bugger_db"
+    echo "sqlite3 $bugger_db create table bugger (id INTEGER PRIMARY KEY, task VARCHAR, timeStart DATETIME, timeStop DATETIME);"
+    sqlite3 "$bugger_db" "create table bugger (id INTEGER PRIMARY KEY, task VARCHAR, timeStart DATETIME, timeStop DATETIME);"
 }
 
 create_config(){
@@ -19,13 +39,15 @@ create_config(){
     cat > ~/.bugger/bug.conf << EOF
     ### Edit me, and run <bugadm reload> ###
     bugger_intervall=900
-    bugger_path="$(pwd)/bin/bugger"
+    bugger_path=$(pwd)/bin/bugger
+    bugger_db=~/.bugger/bug.db
+    bugger_cocoa=/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog
 EOF
 }
 
 generate_job(){
     echo "Generating new Launchd job"
-    cat > $Launchd_plist <<- EOF
+    cat > $launchd_plist <<- EOF
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
@@ -49,26 +71,26 @@ generate_job(){
 EOF
 }
 
-check_bugger_status(){
-    echo $(launchctl list | grep no.brujordet.bugger)
+delete_job(){
+    if [[ -f $launchd_plist ]]; then
+        echo "Deleting job"
+        rm $launchd_plist
+    fi
 }
 
-delete_job(){
-    if [[ -f $Launchd_plist ]]; then
-        echo "Deleting job"
-        rm $Launchd_plist
-    fi
+check_bugger_status(){
+    launchctl list | grep no.brujordet.bugger
 }
 
 start_bugger(){
     echo "Starting Bugger"
-    launchctl load $Launchd_plist
+    launchctl load $launchd_plist
 }
 
 stop_bugger(){
     if [[ ! -z "$(check_bugger_status)" ]]; then
         echo "Stopping Bugger"
-        launchctl unload $Launchd_plist
+        launchctl unload $launchd_plist
     else
         echo "Bugger was not running.."
     fi
@@ -86,18 +108,17 @@ status_bugger(){
 
 
 
-############################
+############ Parsing Input ##############
 
 case $1 in
     install)
-        load_configuration
-        generate_job
+        update_configuration
+        start_bugger
     ;;
     reload)
         stop_bugger
         delete_job
-        load_configuration
-        generate_job
+        update_configuration
         start_bugger
     ;;
     status)
