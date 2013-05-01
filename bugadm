@@ -1,21 +1,31 @@
 #! /usr/bin/env bash
 
-####### EDIT ME! #######
-intervall=900
-buggerpath="$(pwd)/bin/bugger"
-####### Dragons ahead! #######
+Launchd_plist=~/Library/LaunchAgents/no.brujordet.bugger.plist
 
+load_configuration(){
+    if [[ ! -f ~/.bugger/bug.conf ]]; then
+        echo "Could not find config file!"
+        create_config
+    fi
+    . ~/.bugger/bug.conf
+}
 
-
-####### This script will create folders an links needed for bugger #######
-create_config_dir(){
+create_config(){
+    echo "Generating new config to ~/.bugger/bug.conf"
     if [[ ! -d ~/.bugger ]]; then
         mkdir ~/.bugger
     fi
+
+    cat > ~/.bugger/bug.conf << EOF
+    ### Edit me, and run <bugadm reload> ###
+    bugger_intervall=900
+    bugger_path="$(pwd)/bin/bugger"
+EOF
 }
 
 generate_job(){
-    cat > ~/Library/LaunchAgents/no.brujordet.bugger.plist <<- EOF
+    echo "Generating new Launchd job"
+    cat > $Launchd_plist <<- EOF
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
@@ -24,14 +34,14 @@ generate_job(){
         <string>no.brujordet.bugger</string>
         <key>ProgramArguments</key>
         <array>
-            <string>$buggerpath</string>
+            <string>$bugger_path</string>
         </array>
         <key>StandardErrorPath</key>
         <string>/dev/null</string>
         <key>StandardOutPath</key>
         <string>/dev/null</string>
         <key>StartInterval</key>
-        <integer>$intervall</integer>
+        <integer>$bugger_intervall</integer>
         <key>RunAtLoad</key>
         <true/>
     </dict>
@@ -39,13 +49,40 @@ generate_job(){
 EOF
 }
 
+check_bugger_status(){
+    echo $(launchctl list | grep no.brujordet.bugger)
+}
+
+delete_job(){
+    if [[ -f $Launchd_plist ]]; then
+        echo "Deleting job"
+        rm $Launchd_plist
+    fi
+}
+
 start_bugger(){
-    launchctl load ~/Library/LaunchAgents/no.brujordet.bugger.plist
+    echo "Starting Bugger"
+    launchctl load $Launchd_plist
 }
 
 stop_bugger(){
-    launchctl unload ~/Library/LaunchAgents/no.brujordet.bugger.plist
+    if [[ ! -z "$(check_bugger_status)" ]]; then
+        echo "Stopping Bugger"
+        launchctl unload $Launchd_plist
+    else
+        echo "Bugger was not running.."
+    fi
 }
+
+status_bugger(){
+    running=$(launchctl list | grep no.brujordet.bugger)
+    if [[ ! -z "$(check_bugger_status)" ]]; then
+        echo "Bugger is running!"
+    else
+        echo "Bugger is not running.."
+    fi
+}
+
 
 
 
@@ -53,8 +90,18 @@ stop_bugger(){
 
 case $1 in
     install)
-        create_config_dir
+        load_configuration
         generate_job
+    ;;
+    reload)
+        stop_bugger
+        delete_job
+        load_configuration
+        generate_job
+        start_bugger
+    ;;
+    status)
+        status_bugger
     ;;
     start)
         start_bugger
@@ -64,9 +111,9 @@ case $1 in
     ;;
     cleanup)
         stop_bugger
-        rm ~/Library/LaunchAgents/no.brujordet.bugger.plist
+        delete_job
     ;;
     *)
-        echo "usage: $0 (install|start|stop|cleanup)"
+        echo "usage: $0 (install|start|stop|reload|cleanup)"
     ;;
 esac
