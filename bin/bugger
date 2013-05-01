@@ -4,23 +4,29 @@ cocoa='/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog'
 db=~/.bugger/bugger.db
 
 
-if [[ ! -f "$db" ]]; then
-    sqlite3 $db "create table bugger (id INTEGER PRIMARY KEY, task VARCHAR, timeStart DATETIME, timeStop DATETIME);"
-else
-    id=$(sqlite3 $db "select id from bugger where timestop is null ;")
-    if [[ ! -z "$id" ]]; then
-        old_task=$(sqlite3 $db "select task from bugger where id = $id ;")
-        seconds_spent=$(sqlite3 $db "SELECT (strftime('%s','now') - strftime('%s',timeStart))  from bugger where id = $id ;")
-        old_time=$(printf "%02uh:%02um" $(($seconds_spent/10000)) $(($seconds_spent/100%100)))
+find_latest_task(){
+    if [[ ! -f "$db" ]]; then
+        sqlite3 $db "create table bugger (id INTEGER PRIMARY KEY, task VARCHAR, timeStart DATETIME, timeStop DATETIME);"
+    else
+        id=$(sqlite3 $db "select id from bugger where timestop is null ;")
+        if [[ ! -z "$id" ]]; then
+            old_task=$(sqlite3 $db "select task from bugger where id = $id ;")
+            seconds_spent=$(sqlite3 $db "SELECT (strftime('%s','now') - strftime('%s',timeStart))  from bugger where id = $id ;")
+            old_time=$(printf "%02uh:%02um" $(($seconds_spent/10000)) $(($seconds_spent/100%100)))
 
+        fi
     fi
-fi
+}
 
-new_task=$($cocoa standard-inputbox --title "Bugger - What are you working on?" --text "$old_task" --float --no-newline --no-cancel --informative-text "Time spent on current task: $old_time" | grep -v 1)
-if [[ ! -z "$new_task" && "$new_task" != "$old_task" ]]; then
-    if [[ ! -z "$id" ]]; then
-        sqlite3 $db "update bugger set timeStop = DATETIME('now') where id=$id;"
+register_current_task(){
+    new_task=$($cocoa standard-inputbox --title "Bugger - What are you working on?" --text "$old_task" --float --no-newline --no-cancel --informative-text "Time spent on current task: $old_time" | grep -v 1)
+    if [[ ! -z "$new_task" && "$new_task" != "$old_task" ]]; then
+        if [[ ! -z "$id" ]]; then
+            sqlite3 $db "update bugger set timeStop = DATETIME('now') where id=$id;"
+        fi
+        sqlite3 $db "insert into bugger values(null, \"$new_task\", DATETIME('now'), null);"
     fi
-    sqlite3 $db "insert into bugger values(null, \"$new_task\", DATETIME('now'), null);"
-fi
+}
 
+find_latest_task
+register_current_task
