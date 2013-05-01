@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+############ Configuration handling ##############
+
 launchd_plist=~/Library/LaunchAgents/no.brujordet.bugger.plist
 
 update_configuration(){
@@ -78,6 +80,8 @@ delete_job(){
     fi
 }
 
+############ Process handling ##############
+
 check_bugger_status(){
     launchctl list | grep no.brujordet.bugger
 }
@@ -104,9 +108,6 @@ status_bugger(){
         echo "Bugger is not running.."
     fi
 }
-
-
-
 
 ############ Parsing Input ##############
 
