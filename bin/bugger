@@ -12,7 +12,7 @@ find_latest_task(){
 }
 
 register_current_task(){
-    new_task=$($bugger_cocoa standard-inputbox --title "Bugger - What are you working on?" --text "$old_task" --float --no-newline --no-cancel --informative-text "Time spent on current task: $old_time" | grep -v 1)
+    new_task=$($bugger_cocoa standard-inputbox --title "Bugger - What are you working on?" --text "$old_task" --float --no-newline --no-cancel --informative-text "Time spent on current task: $old_time" | tail -n 1)
     if [[ ! -z "$new_task" && "$new_task" != "$old_task" ]]; then
         if [[ ! -z "$id" ]]; then
             sqlite3 $bugger_db "update bugger set timeStop = DATETIME('now') where id=$id;"
