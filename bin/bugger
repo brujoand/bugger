@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 . ~/.bugger/bug.conf
 
+
 find_latest_task(){
     id=$(sqlite3 $bugger_db "select id from bugger where timestop is null ;")
     if [[ ! -z "$id" ]]; then
@@ -22,4 +23,8 @@ register_current_task(){
 }
 
 find_latest_task
-register_current_task
+if [ $# -lt "1" ]; then
+    (terminal-notifier -title "Time spent on task: $old_time" -message "IT-9999" -execute "$0 prompt")
+else
+    register_current_task
+fi
