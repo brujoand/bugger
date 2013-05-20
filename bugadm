@@ -28,7 +28,6 @@ update_configuration(){
 
 create_empty_db(){
     echo "Creating database $bugger_db"
-    echo "sqlite3 $bugger_db create table bugger (id INTEGER PRIMARY KEY, task VARCHAR, timeStart DATETIME, timeStop DATETIME);"
     sqlite3 "$bugger_db" "create table bugger (id INTEGER PRIMARY KEY, task VARCHAR, timeStart DATETIME, timeStop DATETIME);"
 }
 
@@ -44,6 +43,7 @@ create_config(){
     bugger_path=$(pwd)/bin/bugger
     bugger_db=~/.bugger/bug.db
     bugger_cocoa=/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog
+    bugger_notify=/Users/anders/.rvm/gems/ruby-2.0.0-p0/bin/terminal-notifier
 EOF
 }
 

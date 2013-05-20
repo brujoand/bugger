@@ -1,6 +1,7 @@
 #! /usr/bin/env ruby
 
 require 'SQLite3'
+require 'date'
 
 class BugRapport
 
@@ -15,7 +16,6 @@ class BugRapport
             minutes = seconds / 60
             hours = minutes / 60
             extra_minutes = minutes - (hours * 60)
-format('%02d', 4)
             puts format('%02d', hours) + "h:" + format('%02d', extra_minutes) + "m - " + row[0]
         end
     end
@@ -32,7 +32,7 @@ db_path = ARGV[0]
 bugrapport=BugRapport.new(db_path)
 
 if (ARGV.length == 1)
-    bugrapport.generateDayRapport()
+    bugrapport.generateDayRapport(Date.now)
 elsif (ARGV.length == 2)
     date = ARGV[1]
     bugrapport.generateRapportFor(date)
