@@ -28,7 +28,21 @@ update_configuration(){
 
 create_empty_db(){
     echo "Creating database $bugger_db"
-    sqlite3 "$bugger_db" "create table bugger (id INTEGER PRIMARY KEY, task VARCHAR, timeStart DATETIME, timeStop DATETIME);"
+    sqlite3 "$bugger_db" "create table
+        task (
+            task_id INTEGER PRIMARY KEY,
+            name VARCHAR,
+            description VARCHAR
+        );"
+    sqlite3 "$bugger_db" "create table 
+        time (
+            time_id INTEGER PRIMARY KEY, 
+            timeStart DATETIME, 
+            timeStop DATETIME,
+            duration INTEGER,
+            task_id INTEGER, 
+            FOREIGN KEY(task_id) REFERENCES task(task_id)
+        );"
 }
 
 create_config(){
