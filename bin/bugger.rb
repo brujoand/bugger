@@ -40,9 +40,9 @@ class Bugger
         task_id = get_last_task
         title = "Time spent on task: " + time_spent_by(task_id)
         message = get_task_name(task_id)
-        execute = __FILE__ + " " + @db_path + " " + @cocoa + " prompt"
+        execute = File.dirname(__FILE__) + "/../bugadm prompt"
         puts execute
-        TerminalNotifier.notify(message, :execute => '/Users/anders/src/bugger/bin/shit')
+        TerminalNotifier.notify(message, :title => title, :execute => execute)
     end
 
     def end_current(id)

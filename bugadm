@@ -40,10 +40,11 @@ create_config(){
     cat > ~/.bugger/bug.conf << EOF
     ### Edit me, and run <bugadm reload> ###
     bugger_intervall=900
-    bugger_path=$(pwd)/bin/bugger
+    bugger_path=$(pwd)/bin/bugger.rb
     bugger_db=~/.bugger/bug.db
     bugger_cocoa=/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog
     bugger_log=~/.bugger/bug.log
+    bugger_ruby=/usr/local/bin/ruby
 EOF
 }
 
@@ -58,6 +59,7 @@ generate_job(){
         <string>no.brujordet.bugger</string>
         <key>ProgramArguments</key>
         <array>
+            <string>$bugger_ruby</string>
             <string>$bugger_path</string>
             <string>$bugger_db</string>
             <string>$bugger_cocoa</string>
@@ -113,7 +115,7 @@ status_bugger(){
 
 ############ Actuall bug   ##############
 prompt_bugger(){
-    $bugger_path $bugger_db $bugger_cocoa prompt
+    $bugger_ruby $bugger_path $bugger_db $bugger_cocoa prompt
 }
 
 ############ Parsing Input ##############
