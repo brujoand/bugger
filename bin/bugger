@@ -7,6 +7,7 @@ require 'terminal-notifier'
 class Bugger
 
     def initialize(db_path, cocoa)
+        @db_path = db_path
         @db = SQLite3::Database.new(db_path)
         @cocoa = cocoa
     end
@@ -39,8 +40,9 @@ class Bugger
         task_id = get_last_task
         title = "Time spent on task: " + time_spent_by(task_id)
         message = get_task_name(task_id)
-        execute = File.dirname(__FILE__) + " prompt"
-        TerminalNotifier.notify(message, :execute => execute, :title => title)
+        execute = __FILE__ + " " + @db_path + " " + @cocoa + " prompt"
+        puts execute
+        TerminalNotifier.notify(message, :execute => '/Users/anders/src/bugger/bin/shit')
     end
 
     def end_current(id)
@@ -67,9 +69,13 @@ class Bugger
 
 end
 
+if (ARGV.length < 2)
+    puts "usage huteohuna"
+    exit 
+end
+
 db_path = ARGV[0]
 cocoa = ARGV[1]
-
 bugger = Bugger.new(db_path, cocoa)
 
 if (ARGV.length == 2)
