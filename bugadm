@@ -43,7 +43,7 @@ create_config(){
     bugger_path=$(pwd)/bin/bugger
     bugger_db=~/.bugger/bug.db
     bugger_cocoa=/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog
-    bugger_notify=/Users/anders/.rvm/gems/ruby-2.0.0-p0/bin/terminal-notifier
+    bugger_log=~/.bugger/bug.log
 EOF
 }
 
@@ -59,11 +59,13 @@ generate_job(){
         <key>ProgramArguments</key>
         <array>
             <string>$bugger_path</string>
+            <string>$bugger_db</string>
+            <string>$bugger_cocoa</string>
         </array>
         <key>StandardErrorPath</key>
-        <string>/dev/null</string>
+        <string>$bugger_log</string>
         <key>StandardOutPath</key>
-        <string>/dev/null</string>
+        <string>$bugger_log</string>
         <key>StartInterval</key>
         <integer>$bugger_intervall</integer>
         <key>RunAtLoad</key>
@@ -75,7 +77,7 @@ EOF
 
 delete_job(){
     if [[ -f $launchd_plist ]]; then
-        echo "Deleting job"
+        echo "Deleting launchd job"
         rm $launchd_plist
     fi
 }
@@ -109,6 +111,11 @@ status_bugger(){
     fi
 }
 
+############ Actuall bug   ##############
+prompt_bugger(){
+    $bugger_path $bugger_db $bugger_cocoa prompt
+}
+
 ############ Parsing Input ##############
 
 case $1 in
@@ -124,6 +131,10 @@ case $1 in
     ;;
     status)
         status_bugger
+    ;;
+    prompt)
+        update_configuration
+        prompt_bugger
     ;;
     start)
         start_bugger
