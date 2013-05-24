@@ -1,0 +1,6 @@
+-TODO:
+-    - More modulare db
+-    - Add support for keywords
+-    - Take sleep/poweroff into account
+-    - Generate rapports
+-    - Make compatible with linux
