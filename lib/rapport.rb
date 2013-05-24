@@ -37,7 +37,7 @@ db_path = ARGV[0]
 bugrapport=BugRapport.new(db_path)
 
 if (ARGV.length == 1)
-    bugrapport.generateRapportFor(DateTime.new.to_date)
+    bugrapport.generateRapportFor(DateTime.now.to_date.to_s)
 elsif (ARGV.length == 2)
     date = ARGV[1]
     bugrapport.generateRapportFor(date)
