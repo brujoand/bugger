@@ -128,7 +128,11 @@ status_bugger(){
 
 ############ Actuall bug   ##############
 bug(){
-    $bugger_ruby $bugger_path $bugger_db $bugger_cocoa $1
+    $bugger_ruby $bugger_lib/bugger.rb $bugger_db $bugger_cocoa $1
+}
+
+rapport(){
+    $bugger_ruby $bugger_lib/rapport.rb $bugger_db $@
 }
 
 ############ Parsing Input ##############
@@ -160,6 +164,11 @@ case $1 in
     notify)
         update_configuration
         bug
+    ;;
+    rapport)
+        update_configuration
+        shift
+        rapport $@
     ;;
     *)
         echo "usage: $0 (install|start|stop|reload|prompt|notify)"
