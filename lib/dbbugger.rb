@@ -9,7 +9,7 @@ class DBBugger
 	end
 
     def get_last_task()
-	    sql="select task_id from time where timestop is null"
+	    sql="select task_id from time_spent where time_stop is null"
 	    result = @db.execute(sql)
 	    if (result.empty?)
 	        nil
@@ -25,7 +25,7 @@ class DBBugger
 
     def end_current(id)
 	    if (id != nil)
-	        sql = "update time set timeStop = DATETIME('now') where task_id=?"
+	        sql = "update time_spent set time_stop = DATETIME('now') where task_id=?"
 	        @db.execute(sql, id)
 	    end
 	end
@@ -45,13 +45,13 @@ class DBBugger
             task_id=task_id_row[0]
         end
         
-        sql_time = "insert into time values(null, DATETIME('now'), null, null, ?)"
+        sql_time = "insert into time_spent values(null, DATETIME('now'), null, null, ?)"
         @db.execute(sql_time, task_id)
     end
 
     def time_spent_by(id)
         puts "Checking time spent for task_id: #{id}"
-        sql = "select strftime('%s',timeStart), strftime('%s','now') from time where task_id=?"
+        sql = "select strftime('%s',time_start), strftime('%s','now') from time_spent where task_id=?"
         row = @db.execute(sql, id)[0]
         timestart = row[0].to_i
         now = row[1].to_i        

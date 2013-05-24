@@ -35,11 +35,11 @@ create_empty_db(){
             description VARCHAR
         );"
     sqlite3 "$bugger_db" "create table 
-        time (
+        time_spent (
             time_id INTEGER PRIMARY KEY, 
-            timeStart DATETIME, 
-            timeStop DATETIME,
-            duration INTEGER,
+            time_start DATETIME, 
+            time_stop DATETIME,
+            last_update DATETIME,
             task_id INTEGER, 
             FOREIGN KEY(task_id) REFERENCES task(task_id)
         );"
