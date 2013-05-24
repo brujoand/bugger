@@ -54,7 +54,8 @@ create_config(){
     cat > ~/.bugger/bug.conf << EOF
     ### Edit me, and run <bugadm reload> ###
     bugger_intervall=900
-    bugger_path=$(cd $(dirname $0) && pwd)/bin/bugger.rb
+    #Todo test for symlink
+    bugger_lib=$(cd $(dirname $0) && pwd)/lib
     bugger_db=~/.bugger/bug.db
     bugger_cocoa=/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog
     bugger_log=~/.bugger/bug.log
