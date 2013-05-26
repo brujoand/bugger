@@ -8,16 +8,6 @@ require_relative 'database'
 
 class Bugger
 
-    ## Om det er mer en 20 minutter siden update av siste innslag, sett tid som sleep
-    ## konsekvent bruk av snake
-    ## bibliotek shellcommands
-    ## ikke () i if
-    ## task_id.nil?
-    ## en parametr, ingen ()
-    ## dbbugger nytt navn
-    ## DTO'er
-    ## ikke get i metodenavn
-
     def initialize(db_path, cocoa)
         @database = DBBugger.new(db_path)        
         @cocoa = cocoa

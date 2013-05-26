@@ -2,7 +2,7 @@
 
 require 'SQLite3'
 require 'date'
-require 'active_support/core_ext'
+require 'launchy'
 
 class BugRapport
 
@@ -19,14 +19,24 @@ class BugRapport
 
     def generateRapportFor(date)
         sql = "select name, strftime('%s',time_start), strftime('%s',time_stop) from time_spent natural join task where DATE(time_start) = DATE(?) and time_stop is not null"
+        data=''
         @db.execute(sql, date).each do |row|
             seconds = row[2].to_i - row[1].to_i
-            puts secondsToTimeString(seconds) + " - " + row[0]
-        end
+            data += secondsToTimeString(seconds) + " - " + row[0] 
+        end    
+        html = queryToHtml(data)
+        html_file=writeToTmpFile(html)
+        Launchy.open(html_file)
     end
 
-    def prettyPrint(date)
+    def queryToHtml(date)
+        date
+    end
 
+    def writeToTmpFile(data)
+        filename = '/tmp/rapport.html'
+        File.open(filename, 'w') { |file| file.write(data) }
+        filename
     end
 
 end

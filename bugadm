@@ -140,7 +140,7 @@ bug(){
 }
 
 rapport(){
-    $bugger_ruby $bugger_lib/rapport.rb $bugger_db $@
+    $bugger_ruby $bugger_lib/rapport.rb $bugger_db
 }
 
 ############ Parsing Input ##############
@@ -175,10 +175,9 @@ case $1 in
     ;;
     rapport)
         update_configuration
-        shift
-        rapport $@
+        rapport
     ;;
     *)
-        echo "usage: $0 (install|start|stop|reload|prompt|notify)"
+        echo "usage: $0 (install|start|stop|reload|prompt|notify|rapport)"
     ;;
 esac
