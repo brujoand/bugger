@@ -3,10 +3,32 @@
 require 'SQLite3'
 require 'date'
 
-class DBBugger
+class Database
 	def initialize(db_path)
+        puts db_path
 		@db = SQLite3::Database.new(db_path)
 	end
+
+    def create_empty_db()
+        sql_task = "create table 
+            task (
+                task_id INTEGER PRIMARY KEY,
+                name VARCHAR,
+                description VARCHAR
+            );"
+        sql_time_spent = "create table 
+            time_spent (
+                time_id INTEGER PRIMARY KEY, 
+                time_start DATETIME, 
+                time_stop DATETIME,
+                last_update DATETIME,
+                task_id INTEGER, 
+                FOREIGN KEY(task_id) REFERENCES task(task_id)
+            );"
+
+        @db.execute(sql_task)
+        @db.execute(sql_time_spent)
+    end
 
     def get_last_task()
 	    sql="select task_id from time_spent where time_stop is null"

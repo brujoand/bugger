@@ -9,16 +9,16 @@ require_relative 'database'
 class Bugger
 
     def initialize(db_path, cocoa)
-        @database = DBBugger.new(db_path)        
+        @database = Database.new(db_path)        
         @cocoa = cocoa
     end
 
-    def notify_about_current_task()
+    def notify()
         idle_time=%x(echo $(($(ioreg -c IOHIDSystem | sed -e '/HIDIdleTime/!{ d' -e 't' -e '}' -e 's/.* = //g' -e 'q') / 1000000000))).to_i
         task_id = @database.get_last_task
 
         if (task_id == nil)
-            prompt_for_current_task
+            prompt
         else
             title = "Time spent on task: " + @database.time_spent_by(task_id)
             task_name = @database.get_task_name(task_id)
@@ -34,7 +34,7 @@ class Bugger
         end
     end
 
-    def prompt_for_current_task()
+    def prompt()
         task_id = @database.get_last_task
         if(task_id == nil)
             time_spent='00h:00m'
@@ -53,13 +53,3 @@ class Bugger
 
 end
 
-
-db_path = ARGV[0]
-cocoa = ARGV[1]
-bugger = Bugger.new(db_path, cocoa)
-
-if (ARGV.length == 2)
-    bugger.notify_about_current_task
-elsif (ARGV.length == 3)
-    bugger.prompt_for_current_task
-end

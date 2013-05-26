@@ -1,80 +1,12 @@
-#! /usr/bin/env bash
+#! /usr/bin/env ruby
 
-############ Configuration handling ##############
+require_relative('config/config')
+require_relative('lib/rapport')
+require_relative('lib/bugger')
 
-launchd_plist=~/Library/LaunchAgents/no.brujordet.bugger.plist
-
-if [[ -s $0 ]]; then
-    bugger_base=$(readlink $0)
-else 
-    bugger_base=$(cd $(dirname $0) && pwd)
-fi
-
-
-update_configuration(){
-    if [[ ! -f ~/.bugger/bug.conf ]]; then
-        create_config
-    fi
-
-    . ~/.bugger/bug.conf
-
-    if [[ ! -f ~/.bugger/bug.db ]]; then
-        create_empty_db
-    fi
-
-    if [[ ! -f $launchd_plist ]]; then
-        generate_job
-    fi
-
-    if [[ ! -f $bugger_cocoa ]]; then
-        echo "ERMEGERD CocoaDialog IS NOT INSTALLED!!"
-        echo "Get it here --> http://mstratman.github.io/cocoadialog/#download"
-        exit 1
-    fi
-}
-
-create_empty_db(){
-    echo "Creating database $bugger_db"
-    sqlite3 "$bugger_db" "create table
-        task (
-            task_id INTEGER PRIMARY KEY,
-            name VARCHAR,
-            description VARCHAR
-        );"
-    sqlite3 "$bugger_db" "create table 
-        time_spent (
-            time_id INTEGER PRIMARY KEY, 
-            time_start DATETIME, 
-            time_stop DATETIME,
-            last_update DATETIME,
-            task_id INTEGER, 
-            FOREIGN KEY(task_id) REFERENCES task(task_id)
-        );"
-}
-
-create_config(){
-    echo "Generating new config to ~/.bugger/bug.conf"
-    if [[ ! -d ~/.bugger ]]; then
-        mkdir ~/.bugger
-    fi
-
-    cat > ~/.bugger/bug.conf << EOF
-    ### Edit me, and run <bugadm reload> ###
-    bugger_intervall=900
-    #Todo test for symlink
-    bugger_lib=$bugger_base/lib
-    bugger_db=~/.bugger/bug.db
-    bugger_cocoa=/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog
-    bugger_log=~/.bugger/bug.log
-    bugger_ruby=/usr/local/bin/ruby
-EOF
-}
-
-generate_job(){
-    echo "Generating new Launchd job"
-    bugadm_path=$bugger_base/bugadm
-    cat > $launchd_plist <<- EOF
-    <?xml version="1.0" encoding="UTF-8"?>
+def install_launchd()
+	launchd_plist  = <<-EOS
+	<?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
     <dict>
@@ -82,102 +14,101 @@ generate_job(){
         <string>no.brujordet.bugger</string>
         <key>ProgramArguments</key>
         <array>
-            <string>$bugadm_path</string>
+            <string>#{CONFIG['bugger_base']}/bugadm.rb</string>
             <string>notify</string>
         </array>
         <key>StandardErrorPath</key>
-        <string>$bugger_log</string>
+        <string>#{CONFIG['bugger_log']}</string>
         <key>StandardOutPath</key>
-        <string>$bugger_log</string>
+        <string>#{CONFIG['bugger_log']}</string>
         <key>StartInterval</key>
-        <integer>$bugger_intervall</integer>
+        <integer>#{CONFIG['bugger_intervall']}</integer>
         <key>RunAtLoad</key>
         <true/>
     </dict>
     </plist>
-EOF
-}
+    EOS
+	File.open(CONFIG['bugadm_plist'], 'w') { |file| file.write(launchd_plist) }
+end
 
-delete_job(){
-    if [[ -f $launchd_plist ]]; then
-        echo "Deleting launchd job"
-        rm $launchd_plist
-    fi
-}
+def check_dependencies()
+	if (File.exist?(CONFIG['bugger_cocoa']))
+		puts "CocoaDialog is not installed --> http://mstratman.github.io/cocoadialog/#download"
+		exit
+	elsif !Gem::Specification::find_all_by_name('terminal-notifier').empty?
+		puts "Gem terminal-notifier is not installed!"
+		exit
+	end		
+end
 
-############ Process handling ##############
+def create_empty_db()	
+	puts "Creating empty db: #{CONFIG['bugger_db']}"
+	db = Database.new(CONFIG['bugger_db']) 
+	db.create_empty_db
+end
 
-check_bugger_status(){
-    launchctl list | grep no.brujordet.bugger
-}
+def bugger_status()
+	status = system 'launchctl list | grep no.brujordet.bugger > /dev/null'
+	if (status)
+		puts 'Bugger is loaded'
+	else
+		puts 'Bugger is not loaded'
+	end
+end
 
-start_bugger(){
-    echo "Starting Bugger"
-    launchctl load $launchd_plist
-}
+def bugger_control(action)
+	cmd = "launchctl #{action} #{CONFIG['bugadm_plist']}"
+	system cmd 
+end
 
-stop_bugger(){
-    if [[ ! -z "$(check_bugger_status)" ]]; then
-        echo "Stopping Bugger"
-        launchctl unload $launchd_plist
-    else
-        echo "Bugger was not running.."
-    fi
-}
+def die_with_usage()
+	puts "usage: bugadm (install|load|unload|reload|status|prompt|notify|rapport)"
+    exit
+end
 
-status_bugger(){
-    running=$(launchctl list | grep no.brujordet.bugger)
-    if [[ ! -z "$(check_bugger_status)" ]]; then
-        echo "Bugger is running!"
-    else
-        echo "Bugger is not running.."
-    fi
-}
+def bugger(action)
+	puts action
+	bugger = Bugger.new(CONFIG['bugger_db'], CONFIG['bugger_cocoa'])
+	bugger.notify
+end
 
-############ Actuall bug   ##############
-bug(){
-    $bugger_ruby $bugger_lib/bugger.rb $bugger_db $bugger_cocoa $1
-}
+def rapport()
+	rapport = BugRapport.new(CONFIG['bugger_db'])
+	rapport.generateRapportFor(DateTime.now.to_date.to_s)	
+end
 
-rapport(){
-    $bugger_ruby $bugger_lib/rapport.rb $bugger_db
-}
+die_with_usage unless ARGV.length > 0
+parameter = ARGV[0]
 
-############ Parsing Input ##############
+case parameter
+when 'install'
+	create_empty_db
+	install_launchd
+	bugger_control 'load'
+when 
+	'load', 'unload'
+	bugger_control(parameter)
+when 'reload'
+	bugger_control('unload')
+	install_launchd
+	bugger_control('load')
+when 'status'
+	bugger_status
+when 'prompt','notify'
+	bugger(parameter)
+when 'rapport'
+	rapport()
+else
+	die_with_usage
+end
 
-case $1 in
-    install)
-        update_configuration
-        start_bugger
-    ;;
-    reload)
-        stop_bugger
-        delete_job
-        update_configuration
-        start_bugger
-    ;;
-    status)
-        status_bugger
-    ;;
-    prompt)
-        update_configuration
-        bug prompt
-    ;;
-    start)
-        start_bugger
-    ;;
-    stop)
-        stop_bugger
-    ;;
-    notify)
-        update_configuration
-        bug
-    ;;
-    rapport)
-        update_configuration
-        rapport
-    ;;
-    *)
-        echo "usage: $0 (install|start|stop|reload|prompt|notify|rapport)"
-    ;;
-esac
+
+
+
+
+
+
+
+
+
+
