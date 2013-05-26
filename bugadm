@@ -14,7 +14,8 @@ def install_launchd()
         <string>no.brujordet.bugger</string>
         <key>ProgramArguments</key>
         <array>
-            <string>#{CONFIG['bugger_base']}/bugadm.rb</string>
+            <string>#{CONFIG['ruby_bin']}</string>
+            <string>#{__FILE__}</string>
             <string>notify</string>
         </array>
         <key>StandardErrorPath</key>
@@ -52,13 +53,14 @@ def bugger_status()
 	if (status)
 		puts 'Bugger is loaded'
 	else
-		puts 'Bugger is not loaded'
+		puts 'Bugger is unloaded'
 	end
 end
 
 def bugger_control(action)
 	cmd = "launchctl #{action} #{CONFIG['bugadm_plist']}"
 	system cmd 
+    bugger_status
 end
 
 def die_with_usage()
