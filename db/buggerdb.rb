@@ -9,7 +9,6 @@ class BuggerDB
 	def initialize()
 		@db = SQLite3::Database.new(CONFIG['bugger_db'])
         @db.results_as_hash = true
-        puts CONFIG['bugger_db'] + sex
 	end
 
     def create_empty_db()
@@ -34,13 +33,12 @@ class BuggerDB
     end
 
     def execute(sql, parameters)
-        puts sql
-        result = @db.execute(sql, parameters)
-        if result.empty?
-            @db.last_insert_row_id
-        else
-            result
-        end
+        @db.execute(sql, parameters)
+    end
+
+    def insert(sql, parameters)
+        @db.execute(sql, parameters)
+        @db.last_insert_row_id
     end
 
 end

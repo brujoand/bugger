@@ -3,51 +3,58 @@
 require 'SQLite3'
 require 'date'
 require 'terminal-notifier'
+require_relative '../db/task'
 
-require_relative 'database'
 
 class Bugger
 
-    def initialize(db_path, cocoa)
-        @database = Database.new(db_path)        
+    def initialize(db_path, cocoa)          
         @cocoa = cocoa
     end
 
     def notify()
         idle_time=%x(echo $(($(ioreg -c IOHIDSystem | sed -e '/HIDIdleTime/!{ d' -e 't' -e '}' -e 's/.* = //g' -e 'q') / 1000000000))).to_i
-        task_id = @database.get_last_task
-
-        if (task_id == nil)
+        task = Task.last
+        
+        if (task.id == nil)
             prompt
         else
-            title = "Time spent on task: " + @database.time_spent_by(task_id)
-            task_name = @database.get_task_name(task_id)
+            title = "Time spent on task: " + task.time_spent_today
+            task_name = task.name
             
             # TODO match on id instead
-            if(idle_time > 300 and task_name != 'idle')
-                @database.end_current(task_id)
-                @database.register_new_task('idle')
+            if(idle_time > 300 and task.name != 'idle')
+                task.end
+                new_task = Task.create('idle', nil)
+                new_task.start
             else                        
                 callback = File.dirname(__FILE__) + "/../bugadm prompt" 
-                TerminalNotifier.notify(task_name, :title => title, :execute => callback)
+                TerminalNotifier.notify(task.name, :title => title, :execute => callback)
             end
         end
     end
 
     def prompt()
-        task_id = @database.get_last_task
-        if(task_id == nil)
+        task = Task.last
+        if(task == nil)
             time_spent='00h:00m'
             task_name=''
         else            
-            time_spent = @database.time_spent_by(task_id)
-            task_name = @database.get_task_name(task_id)
+            time_spent = task.time_spent_today
+            task_name = task.name
         end
-        new_task = %x(#{@cocoa} standard-inputbox --title "Bugger - What are you working on?" --text "#{task_name}" --float --no-newline --no-cancel --informative-text "Time spent on current task: #{time_spent}" | tail -n 1 )        
 
-        if (task_name != new_task)
-            @database.end_current(task_id)
-            @database.register_new_task(new_task)
+        new_task_name = %x(#{@cocoa} standard-inputbox --title "Bugger - What are you working on?" --text "#{task_name}" --float --no-newline --no-cancel --informative-text "Time spent on current task: #{time_spent}" | tail -n 1 )        
+
+        new_task = Task.by_name(new_task_name)
+        
+        if new_task != nil
+            task.end if task != nil
+            new_task = Task.create(new_task_name,nil)
+            new_task.start            
+        elsif task.id != new_task
+            task.end if task != nil
+            task.start            
         end
     end
 
