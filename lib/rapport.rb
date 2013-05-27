@@ -22,15 +22,15 @@ class BugRapport
         data=''
         @db.execute(sql, date).each do |row|
             seconds = row[2].to_i - row[1].to_i
-            data += secondsToTimeString(seconds) + " - " + row[0] 
+            data += secondsToTimeString(seconds) + " - " + row[0] + "</br>"
         end    
         html = queryToHtml(data)
         html_file=writeToTmpFile(html)
         Launchy.open(html_file)
     end
 
-    def queryToHtml(date)
-        date
+    def queryToHtml(data)
+        data
     end
 
     def writeToTmpFile(data)
