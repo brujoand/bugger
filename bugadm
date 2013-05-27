@@ -71,7 +71,7 @@ end
 def bugger(action)
 	puts action
 	bugger = Bugger.new(CONFIG['bugger_db'], CONFIG['bugger_cocoa'])
-	bugger.notify
+	bugger.send(action.to_sym)
 end
 
 def rapport()
@@ -84,6 +84,7 @@ parameter = ARGV[0]
 
 case parameter
 when 'install'
+    check_dependencies
 	create_empty_db
 	install_launchd
 	bugger_control 'load'
