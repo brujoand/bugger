@@ -3,11 +3,12 @@
 require 'SQLite3'
 require 'date'
 require 'launchy'
+require_relative '../config/config'
 
 class BugRapport
 
-    def initialize(db_path)
-        @db = SQLite3::Database.new(db_path)
+    def initialize()
+        @db = SQLite3::Database.new(CONFIG['bugger_db'])
     end
 
     def secondsToTimeString(seconds)

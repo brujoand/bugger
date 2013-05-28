@@ -45,11 +45,19 @@ class Task
         format('%02d', hours) + "h:" + format('%02d', extra_minutes) + "m"
     end    
 
+    def update_times(idle_start, idle_stop)
+    	sql = "insert into time_spent values(nil, ?, ?, DateTime(now), ?)"
+    	@database.execute(sql, [idle_start, idle_stop, id])
+    end
+
+    ##### Static methods ######
+
+
     def self.by_name(name)		
 		sql = "select * from task where name=?"
 		result = BuggerDB.new.execute(sql, name)
 		if result.empty?
-			nil
+			Task.create(name, nil)
 		else
 			row = result.first
 			Task.new(row['task_id'], row['name'], row['description'])

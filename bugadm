@@ -68,17 +68,6 @@ def die_with_usage()
     exit
 end
 
-def bugger(action)
-	puts action
-	bugger = Bugger.new()
-	bugger.send(action.to_sym)
-end
-
-def rapport()
-	rapport = BugRapport.new(CONFIG['bugger_db'])
-	rapport.generateRapportFor(DateTime.now.to_date.to_s)	
-end
-
 die_with_usage unless ARGV.length > 0
 parameter = ARGV[0]
 
@@ -98,9 +87,9 @@ when 'reload'
 when 'status'
 	bugger_status
 when 'prompt','notify'
-	bugger(parameter)
+	Bugger.new.bug(parameter)
 when 'rapport'
-	rapport()
+	BugRapport.new.generateRapportFor(DateTime.now.to_date.to_s)	
 else
 	die_with_usage
 end
