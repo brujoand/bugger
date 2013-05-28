@@ -27,6 +27,13 @@ class Task
         @database.execute(sql_time, id)
     end
 
+    def start_from(start_time)
+		sql_time = "insert into time_spent values(null, DATETIME(?), null, null, ?)"
+		start = start_time.strftime("%d-%m-%Y %H:%M")
+		puts start
+        @database.execute(sql_time, [start,id])
+    end
+
 	def end()    
         sql = "update time_spent set time_stop = DATETIME('now') where task_id=?"
         @database.execute(sql, id)
@@ -44,11 +51,6 @@ class Task
         extra_minutes = minutes - (hours * 60)        
         format('%02d', hours) + "h:" + format('%02d', extra_minutes) + "m"
     end    
-
-    def update_times(idle_start, idle_stop)
-    	sql = "insert into time_spent values(nil, ?, ?, DateTime(now), ?)"
-    	@database.execute(sql, [idle_start, idle_stop, id])
-    end
 
     ##### Static methods ######
 
@@ -85,7 +87,9 @@ class Task
 	    sql="select task_id, name, description from time_spent natural join task where time_stop is null"
 	    result = BuggerDB.new.execute(sql, nil)
 	    if (result.empty?)	    	
-	        nil
+	        first_task = Task.create('Installing Bugger', nil)
+	        first_task.start
+	        first_task
 	    else
             row = result.first          
 	        Task.new(row['task_id'], row['name'], row['description'])

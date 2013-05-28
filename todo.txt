@@ -1,7 +1,5 @@
 -TODO:
 	 - new db tablename task_times
--    - More modulare db
 -    - Add support for keywords
 -    - Take sleep/poweroff into account
--    - Generate rapports
 -    - Make compatible with linux
