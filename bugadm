@@ -70,7 +70,7 @@ end
 
 def bugger(action)
 	puts action
-	bugger = Bugger.new(CONFIG['bugger_db'], CONFIG['bugger_cocoa'])
+	bugger = Bugger.new()
 	bugger.send(action.to_sym)
 end
 

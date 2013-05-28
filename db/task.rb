@@ -32,7 +32,7 @@ class Task
         @database.execute(sql, id)
 	end
 
-	def time_spent_today()
+	def time_spent_today()		
 		sql = "select strftime('%s',time_start), strftime('%s','now') from time_spent where task_id=? and Date(time_start)=Date('now')"
 		seconds=0
         @database.execute(sql, id).each { |row|

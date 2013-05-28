@@ -4,12 +4,13 @@ require 'SQLite3'
 require 'date'
 require 'terminal-notifier'
 require_relative '../db/task'
+require_relative '../config/config'
 
 
 class Bugger
 
-    def initialize(db_path, cocoa)          
-        @cocoa = cocoa
+    def initialize()          
+        @cocoa = CONFIG['bugger_cocoa']
     end
 
     def notify()
@@ -27,8 +28,8 @@ class Bugger
                 task.end
                 new_task = Task.create('idle', nil)
                 new_task.start
-            else                        
-                callback = File.dirname(__FILE__) + "/../bugadm prompt" 
+            else           
+                callback = CONFIG['ruby_bin'] + " " + File.dirname(__FILE__) + "/../bugadm prompt" 
                 TerminalNotifier.notify(task.name, :title => title, :execute => callback)
             end
         end
@@ -48,7 +49,7 @@ class Bugger
 
         new_task = Task.by_name(new_task_name)
         
-        if new_task != nil
+        if new_task == nil
             task.end if task != nil
             new_task = Task.create(new_task_name,nil)
             new_task.start            

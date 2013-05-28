@@ -22,7 +22,7 @@ class BugRapport
         data=''
         @db.execute(sql, date).each do |row|
             seconds = row[2].to_i - row[1].to_i
-            data += secondsToTimeString(seconds) + " - " + row[0] + "</br>"
+            data += secondsToTimeString(seconds) + " </td> <td> " + row[0] + "</br>"
         end    
         html = queryToHtml(data)
         html_file=writeToTmpFile(html)
@@ -30,7 +30,9 @@ class BugRapport
     end
 
     def queryToHtml(data)
-        data
+        "<html>" +
+        data + 
+        "</html>"
     end
 
     def writeToTmpFile(data)
