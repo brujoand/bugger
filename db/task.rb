@@ -29,7 +29,7 @@ class Task
 
     def start_from(start_time)
 		sql_time = "insert into time_spent values(null, DATETIME(?), null, null, ?)"
-		start = start_time.strftime("%d-%m-%Y %H:%M")
+		start = start_time.strftime("%Y-%d-%m %H:%M")
 		puts start
         @database.execute(sql_time, [start,id])
     end

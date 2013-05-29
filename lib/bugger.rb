@@ -29,7 +29,7 @@ class Bugger
 
     def show_notification(active_task)
         callback = CONFIG['ruby_bin'] + " " + File.dirname(__FILE__) + "/../bugadm prompt" 
-        title = "Time spent on task: " + active_task.time_spent_today
+        title = "Time spent on task today: " + active_task.time_spent_today
         TerminalNotifier.notify(active_task.name, :title => title, :execute => callback)
     end
 
@@ -41,8 +41,8 @@ class Bugger
     end
 
     def prompt_for_idle_time()
-        idle_start=DateTime.now
-        text = "You have been idle since: #{idle_start}"
+        idle_start=DateTime.now.strftime('')
+        text = "You have been idle since: #{idle_start.strftime('%H:%M')}"
         title = "Bugger - What were you doing?"
         task_name = %x(#{CONFIG['bugger_cocoa']} standard-inputbox --title "#{title}" --float --no-newline --no-cancel --informative-text #{text} | tail -n 1 )        
         task = Task.by_name(task_name)
