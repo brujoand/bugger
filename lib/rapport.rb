@@ -19,7 +19,7 @@ class BugRapport
     end
 
     def generateRapportFor(date)
-        sql = "select name, strftime('%s',time_start), strftime('%s',time_stop) from time_spent natural join task where DATE(time_start) = DATE(?) and time_stop is not null"
+        sql = "select name, strftime('%s',time_start), strftime('%s', IFNULL(time_stop, DateTime('now'))) from time_spent natural join task where DATE(time_start) = DATE(?)"
         data=''
         @db.execute(sql, date).each do |row|
             seconds = row[2].to_i - row[1].to_i
