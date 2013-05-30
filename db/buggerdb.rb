@@ -19,17 +19,26 @@ class BuggerDB
                 description VARCHAR
             );"
         sql_time_spent = "create table 
-            time_spent (
+            task_time (
                 time_id INTEGER PRIMARY KEY, 
-                time_start DATETIME, 
-                time_stop DATETIME,
+                start_time DATETIME, 
+                stop_time DATETIME,
                 last_update DATETIME,
                 task_id INTEGER, 
                 FOREIGN KEY(task_id) REFERENCES task(task_id)
-            );"
+            );"        
 
         @db.execute(sql_task)
         @db.execute(sql_time_spent)
+    end
+
+    def initialize_empty_db()
+        sql_task = "insert into task values(null, 'Installing bugger', 'This is how you do it')"
+        @db.execute(sql_task)
+        task_id = @db.last_insert_row_id
+        
+        sql_time_spent = "insert into task_time values(null, DateTime('now'), null, DateTime('now'), ?)"
+        @db.execute(sql_time_spent, task_id)
     end
 
     def execute(sql, parameters)

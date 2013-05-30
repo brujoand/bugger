@@ -33,19 +33,20 @@ def install_launchd()
 end
 
 def check_dependencies()
-	if (File.exist?(CONFIG['bugger_cocoa']))
+	if (!File.exist?(CONFIG['bugger_cocoa']))
 		puts "CocoaDialog is not installed --> http://mstratman.github.io/cocoadialog/#download"
 		exit
-	elsif !Gem::Specification::find_all_by_name('terminal-notifier').empty?
+	elsif Gem::Specification::find_all_by_name('terminal-notifier').empty?
 		puts "Gem terminal-notifier is not installed!"
 		exit
 	end		
 end
 
-def create_empty_db()	
+def create_db()	
 	puts "Creating empty db: #{CONFIG['bugger_db']}"
-	db = Database.new(CONFIG['bugger_db']) 
+	db = BuggerDB.new
 	db.create_empty_db
+	db.initialize_empty_db
 end
 
 def bugger_status()
@@ -74,7 +75,7 @@ parameter = ARGV[0]
 case parameter
 when 'install'
     check_dependencies
-	create_empty_db
+	create_db
 	install_launchd
 	bugger_control 'load'
 when 
