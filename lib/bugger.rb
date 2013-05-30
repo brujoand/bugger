@@ -41,7 +41,7 @@ class Bugger
     end
 
     def prompt_for_idle_time()
-        idle_start=DateTime.now.strftime('')
+        idle_start=DateTime.now
         text = "You have been idle since: #{idle_start.strftime('%H:%M')}"
         title = "Bugger - What were you doing?"
         task_name = %x(#{CONFIG['bugger_cocoa']} standard-inputbox --title "#{title}" --float --no-newline --no-cancel --informative-text #{text} | tail -n 1 )        
