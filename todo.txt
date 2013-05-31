@@ -1,5 +1,0 @@
--TODO:
-	 - new db tablename task_times
--    - Add support for keywords
--    - Take sleep/poweroff into account
--    - Make compatible with linux
