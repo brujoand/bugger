@@ -42,8 +42,8 @@ class TaskTime
 	end
 
 	def touch()
-		sql = "update task_time set last_update=? where task_id=?"
-		@db.execute(sql, [now, @task_id])
+		sql = "update task_time set last_update=? where time_id=?"
+		@db.execute(sql, [now, @id])
 	end
 
 	def end()    
