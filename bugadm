@@ -92,7 +92,7 @@ when 'status'
 when 'prompt','notify'
 	Bugger.new.bug(parameter)
 when 'rapport'
-	BugRapport.new.generateRapportFor(DateTime.now.to_date.to_s)	
+	BugRapport.new.generateRapportFor(Time.now)	
 else
 	die_with_usage
 end

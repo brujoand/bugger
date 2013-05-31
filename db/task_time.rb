@@ -99,7 +99,7 @@ class TaskTime
     end
 
     def self.for_date(date)
-    	sql = "select * from task_time where Date(start) = Date(?) order by start"
+    	sql = "select * from task_time where Date(start, 'unixepoch') = Date(?, 'unixepoch') order by start"
     	result = BuggerDB.new.execute(sql, date.to_time.to_i)
     	tasks = Array.new
 	    if (result.empty?)	    		    	
