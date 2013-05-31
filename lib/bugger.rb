@@ -38,6 +38,7 @@ class Bugger
         title = "Time spent on task today: " + task_time.time_spent 
         task = Task.by_id(task_time.task_id)
         TerminalNotifier.notify(task.name, :title => title, :execute => callback)
+        task_time.touch
     end
 
     def prompt_for_task(task_time)
