@@ -34,10 +34,10 @@ class TaskTime
 		if(@stop_time.nil?)
 			stop = Time.now.to_i
 		else
-			stop = DateTime.parse(stop).to_time.to_i
+			stop = DateTime.parse(stop + ' +0200').to_time.to_i
 		end
-		start = DateTime.parse(@start_time).to_time.to_i
-		
+		start = DateTime.parse(@start_time + ' +0200').to_time.to_i
+
 		stop - start
 	end
 
@@ -52,21 +52,20 @@ class TaskTime
 	end
 
 	def self.start(task_id)
-		TaskTime.start_from(task_id, DateTime.new)
+		TaskTime.start_from(task_id, DateTime.now)
 	end
 
 	def self.start_from(task_id, start_time)
-		sql = "insert into task_time values(null, DateTime(?), null, DateTime(?), ?)"
-		sql_start_time = start_time.strftime("%Y-%d-%m %H:%M")
+		sql = "insert into task_time values(null, DateTime(?), null, DateTime(?), ?)"		
 		last_update = DateTime.now
-	    id = BuggerDB.new.insert(sql, [sql_start_time, last_update.strftime("%Y-%d-%m %H:%M"), task_id])
+	    id = BuggerDB.new.insert(sql, [TaskTime.datetime_to_string(start_time), TaskTime.datetime_to_string(last_update), task_id])
 	    TaskTime.new(id, start_time, nil, last_update, task_id)
 	end
 
 	def self.last()
-	    sql="select time_id, start_time, stop_time, last_update, task_id from task_time where stop_time is null"
+	    sql = "select * from task_time where stop_time is null"
 	    result = BuggerDB.new.execute(sql, nil)
-	    if (result.empty?)	    	
+	    if (result.empty?)	    		    	
 	        nil
 	    else
 	        row = result.first
@@ -80,4 +79,9 @@ class TaskTime
 	    extra_minutes = minutes - (hours * 60)        
 	    format('%02d', hours) + "h:" + format('%02d', extra_minutes) + "m"
 	end 
+
+	def self.datetime_to_string(date)
+		puts date.strftime("%Y-%m-%d %H:%M:%S")
+        date.strftime("%Y-%m-%d %H:%M:%S")        
+    end
 end

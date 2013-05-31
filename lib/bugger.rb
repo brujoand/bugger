@@ -27,11 +27,11 @@ class Bugger
         end
     end
 
-    def show_notification(active_task_time)
+    def show_notification(task_time)
         callback = CONFIG['ruby_bin'] + " " + File.dirname(__FILE__) + "/../bugadm prompt" 
-        title = "Time spent on task today: " + active_task_time.time_spent 
-        active_task = Task.by_id(active_task_time.task_id)
-        TerminalNotifier.notify(active_task.name, :title => title, :execute => callback)
+        title = "Time spent on task today: " + task_time.time_spent 
+        task = Task.by_id(task_time.task_id)
+        TerminalNotifier.notify(task.name, :title => title, :execute => callback)
     end
 
     def prompt_for_task(last_task_time)
