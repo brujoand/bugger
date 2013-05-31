@@ -1,14 +1,14 @@
 #! /usr/bin/env ruby
 
-require 'SQLite3'
 require 'date'
 require 'launchy'
-require_relative '../config/config'
+
+require_relative '../db/task_time'
 
 class BugRapport
 
     def initialize()
-        @db = SQLite3::Database.new(CONFIG['bugger_db'])
+        
     end
 
     def secondsToTimeString(seconds)
@@ -18,13 +18,12 @@ class BugRapport
         format('%02d', hours) + "h:" + format('%02d', extra_minutes) + "m" 
     end
 
-    def generateRapportFor(date)
-        sql = "select name, strftime('%s',time_start), strftime('%s', IFNULL(time_stop, DateTime('now'))) from time_spent natural join task where DATE(time_start) = DATE(?)"
-        data=''
-        @db.execute(sql, date).each do |row|
-            seconds = row[2].to_i - row[1].to_i
-            data += secondsToTimeString(seconds) + " </td> <td> " + row[0] + "</br>"
-        end    
+    def generateRapportFor(date)        
+        data = ''
+        TaskTime.for_date(date).each do |task_time|
+            task = Task.by_id(task_time.task_id)            
+            data += task_time.start_time + ' ' + task_time.stop_time + ' ' + task.name 
+        end
         html = queryToHtml(data)
         html_file=writeToTmpFile(html)
         Launchy.open(html_file)

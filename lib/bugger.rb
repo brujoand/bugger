@@ -11,18 +11,24 @@ require_relative '../config/config'
 class Bugger
 
     def bug(action)
-        last_task_time = TaskTime.last
+        task_time = TaskTime.last
 
-        if (idle?)
-            last_task_time.end 
+        if idle?
+            task_time.end 
             prompt_for_idle_time
-        elsif (action == 'notify')
-            show_notification(last_task_time)
+        elsif task_time.downtime?
+              task_time.end_at(task_time.last_update)
+              task = prompt_for_task(task_time)
+              TaskTime.start(task.id)  
+        elsif action == 'notify'
+            show_notification(task_time)
         else            
-            task = prompt_for_task(last_task_time) 
-            if last_task_time.task_id != task.id
-                last_task_time.end
-                TaskTime.start(task.id)                   
+            task = prompt_for_task(task_time) 
+            if task_time.task_id != task.id
+                task_time.end
+                TaskTime.start(task.id)
+            else
+                task_time.touch
             end
         end
     end
@@ -34,16 +40,16 @@ class Bugger
         TerminalNotifier.notify(task.name, :title => title, :execute => callback)
     end
 
-    def prompt_for_task(last_task_time)
-        text = "Time spent on current task: #{last_task_time.time_spent}" 
+    def prompt_for_task(task_time)
+        text = "Time spent on current task: #{task_time.time_spent}" 
         title = "Bugger - What are you working on?"
-        task = Task.by_id(last_task_time.task_id)
+        task = Task.by_id(task_time.task_id)
         task_name = %x(#{CONFIG['bugger_cocoa']} standard-inputbox --title "#{title}" --text "#{task.name}" --float --no-newline --no-cancel --informative-text #{text} | tail -n 1 )        
         Task.by_name(task_name)
     end
 
     def prompt_for_idle_time()
-        idle_start=DateTime.now
+        idle_start=Time.now
         text = "You have been idle since: #{idle_start.strftime('%H:%M')}"
         title = "Bugger - What were you doing?"
         task_name = %x(#{CONFIG['bugger_cocoa']} standard-inputbox --title "#{title}" --float --no-newline --no-cancel --informative-text #{text} | tail -n 1 )        

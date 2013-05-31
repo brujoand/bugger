@@ -21,9 +21,9 @@ class BuggerDB
         sql_time_spent = "create table 
             task_time (
                 time_id INTEGER PRIMARY KEY, 
-                start_time DATETIME, 
-                stop_time DATETIME,
-                last_update DATETIME,
+                start INTEGER, 
+                stop INTEGER,
+                last_update INTEGER,
                 task_id INTEGER, 
                 FOREIGN KEY(task_id) REFERENCES task(task_id)
             );"        
@@ -37,7 +37,7 @@ class BuggerDB
         @db.execute(sql_task)
         task_id = @db.last_insert_row_id
         
-        sql_time_spent = "insert into task_time values(null, DateTime('now'), null, DateTime('now'), ?)"
+        sql_time_spent = "insert into task_time values(null, strftime('%s','now'), null, strftime('%s','now'), ?)"
         @db.execute(sql_time_spent, task_id)
     end
 
