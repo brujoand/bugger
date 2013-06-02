@@ -6,6 +6,7 @@ require 'terminal-notifier'
 require_relative '../db/task'
 require_relative '../db/task_time'
 require_relative '../config/config'
+require_relative '../views/dialog'
 
 
 class Bugger
@@ -44,8 +45,8 @@ class Bugger
     def prompt_for_task(task_time)
         text = "Time spent on current task: #{task_time.time_spent}" 
         title = "Bugger - What are you working on?"
-        task = Task.by_id(task_time.task_id)
-        task_name = %x(#{CONFIG['bugger_cocoa']} standard-inputbox --title "#{title}" --text "#{task.name}" --float --no-newline --no-cancel --informative-text #{text} | tail -n 1 )        
+        last_task = Task.by_id(task_time.task_id)
+        task_name = BugDialog.prompt_for_task(title, text, last_task.name)
         Task.by_name(task_name)
     end
 
@@ -53,7 +54,7 @@ class Bugger
         idle_start=Time.now
         text = "You have been idle since: #{idle_start.strftime('%H:%M')}"
         title = "Bugger - What were you doing?"
-        task_name = %x(#{CONFIG['bugger_cocoa']} standard-inputbox --title "#{title}" --float --no-newline --no-cancel --informative-text #{text} | tail -n 1 )        
+        task_name = BugDialog.prompt_for_task(title, text, '')
         task = Task.by_name(task_name)
         TaskTime.start_from(task.id, idle_start)
     end

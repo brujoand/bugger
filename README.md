@@ -7,12 +7,11 @@ As often as you feel is needed, by default every 15m, a notification shows your 
 You can activate the notification to add a new current task and the last will be ended.
 Then you can get a rapport -> Profit.
 
-# Installation
-
-
-Get CocoaDialog from http://mstratman.github.io/cocoadialog/ and install it. (Temporary gui)
+# Installation OSX
 
 ```
+$ [sudo] brew install qt
+$ [sudo] gem install qtbindings
 $ [sudo] gem install terminal-notifier
 $ [sudo] gem install SQLite3
 $ [sudo] gem install launchy

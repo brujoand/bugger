@@ -9,6 +9,5 @@ CONFIG = {
 	'bugger_db' => bugger_base + '/db/bug.db',
 	'bugger_log' => '~/.bugger/bug.log',
 	'bugger_intervall' => 900,
-	'bugger_cocoa' => '/Applications/CocoaDialog.app/Contents/MacOS/CocoaDialog',
 	'bugadm_plist' => '/Users/anders/Library/LaunchAgents/no.brujordet.bugger.plist'
 }
