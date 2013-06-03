@@ -47,7 +47,7 @@ class TaskTime
 	end
 
 	def end()    
-		end_at(Time.now)
+		end_at(now)
 	end
 
 	def end_at(time)
@@ -57,7 +57,7 @@ class TaskTime
 
 	def downtime?()
 		time_since_update = now - @last_update
-		if time_since_update > 1800 # This should be closely related to the bugger_intervall
+		if time_since_update > 1800 # This should be closely related to the bugger_intervall			
 			true
 		else
 			false
