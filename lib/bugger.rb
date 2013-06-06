@@ -15,14 +15,17 @@ class Bugger
         task_time = TaskTime.last
 
         if idle?
+            puts 'We have been idle'
             task_time.end 
-            prompt_for_idle_time
+            register_idle_time
         elsif task_time.downtime?
-              task_time.end_at(task_time.last_update)
-              task = prompt_for_task(task_time)
-              TaskTime.start(task.id)  
+            puts 'We have been down'            
+            task = prompt_for_task(task_time)
+            task_time.end_at(task_time.last_update)
+            TaskTime.start(task.id)  
         elsif action == 'notify'
             show_notification(task_time)
+            task_time.touch
         else            
             task = prompt_for_task(task_time) 
             if task_time.task_id != task.id
@@ -38,8 +41,7 @@ class Bugger
         callback = CONFIG['ruby_bin'] + " " + File.dirname(__FILE__) + "/../bugadm prompt" 
         title = "Time spent on task today: " + task_time.time_spent 
         task = Task.by_id(task_time.task_id)
-        TerminalNotifier.notify(task.name, :title => title, :execute => callback)
-        task_time.touch
+        TerminalNotifier.notify(task.name, :title => title, :execute => callback)        
     end
 
     def prompt_for_task(task_time)
@@ -50,7 +52,7 @@ class Bugger
         Task.by_name(task_name)
     end
 
-    def prompt_for_idle_time()
+    def register_idle_time()
         idle_start=Time.now
         text = "You have been idle since: #{idle_start.strftime('%H:%M')}"
         title = "Bugger - What were you doing?"
@@ -61,7 +63,7 @@ class Bugger
 
     def idle?()
         idle_time=%x(echo $(($(ioreg -c IOHIDSystem | sed -e '/HIDIdleTime/!{ d' -e 't' -e '}' -e 's/.* = //g' -e 'q') / 1000000000))).to_i
-        if idle_time > 300
+        if idle_time > 600
             true
         else
             false

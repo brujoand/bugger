@@ -52,7 +52,7 @@ class TaskTime
 
 	def end_at(time)
 		sql = "update task_time set stop=?, last_update=? where time_id=?"
-        @db.execute(sql, [time.to_i, now, @id])
+        @db.execute(sql, [time, now, @id])
 	end
 
 	def downtime?()
@@ -94,7 +94,6 @@ class TaskTime
 	end 
 
 	def self.datetime_to_string(date)
-		puts date.strftime("%Y-%m-%d %H:%M:%S")
         date.strftime("%Y-%m-%d %H:%M:%S")        
     end
 
