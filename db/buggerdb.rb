@@ -6,8 +6,8 @@ require 'date'
 require_relative '../config/config'
 
 class BuggerDB
-	def initialize()
-		@db = SQLite3::Database.new(CONFIG['bugger_db'])
+	def initialize(dbpath=CONFIG['bugger_db'])
+		@db = SQLite3::Database.new(dbpath)
         @db.results_as_hash = true
 	end
 
@@ -37,8 +37,9 @@ class BuggerDB
         @db.execute(sql_task)
         task_id = @db.last_insert_row_id
         
-        sql_time_spent = "insert into task_time values(null, strftime('%s','now'), null, strftime('%s','now'), ?)"
-        @db.execute(sql_time_spent, task_id)
+        timestamp = Time.now.to_i
+        sql_time_spent = "insert into task_time values(null, ?, null, ?, ?)"
+        @db.execute(sql_time_spent, [timestamp, timestamp, task_id])
     end
 
     def execute(sql, parameters)
@@ -48,6 +49,11 @@ class BuggerDB
     def insert(sql, parameters)
         @db.execute(sql, parameters)
         @db.last_insert_row_id
+    end
+
+    def drop_db()
+        @db.execute('drop table if exists task_time')
+        @db.execute('drop table if exists task')
     end
 
 end

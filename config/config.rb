@@ -7,6 +7,7 @@ CONFIG = {
 	'bugger_base' => bugger_base,
 	'bugger_lib' => bugger_base + '/lib',
 	'bugger_db' => bugger_base + '/db/bug.db',
+	'bugger_db_rspec' => bugger_base + '/spec/bug.db',
 	'bugger_log' => '~/.bugger/bug.log',
 	'bugger_intervall' => 900,
 	'bugadm_plist' => '/Users/anders/Library/LaunchAgents/no.brujordet.bugger.plist'
