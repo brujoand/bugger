@@ -5,8 +5,8 @@ require 'terminal-notifier'
 
 require_relative '../db/task'
 require_relative '../db/task_time'
-require_relative '../config/config'
 require_relative '../views/dialog'
+require_relative '../config/bugdata'
 
 
 class Bugger
@@ -38,7 +38,7 @@ class Bugger
     end
 
     def show_notification(task_time)
-        callback = CONFIG['ruby_bin'] + " " + File.dirname(__FILE__) + "/../bugadm prompt" 
+        callback = BugData.config.ruby_bin + " " + File.dirname(__FILE__) + "/../bugadm prompt" 
         title = "Time spent on task today: " + task_time.time_spent 
         task = Task.by_id(task_time.task_id)
         TerminalNotifier.notify(task.name, :title => title, :execute => callback)        

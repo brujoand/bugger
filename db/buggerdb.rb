@@ -2,12 +2,11 @@
 
 require 'SQLite3'
 require 'date'
-
-require_relative '../config/config'
+require_relative '../config/bugdata'
 
 class BuggerDB
-	def initialize(dbpath=CONFIG['bugger_db'])
-		@db = SQLite3::Database.new(dbpath)
+	def initialize(db_path = BugData.config.db_path)
+		@db = SQLite3::Database.new(db_path)
         @db.results_as_hash = true
 	end
 

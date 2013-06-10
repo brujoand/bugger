@@ -1,6 +1,6 @@
 #! /usr/bin/env ruby
 
-require_relative('config/config')
+require_relative('config/bugdata')
 require_relative('lib/rapport')
 require_relative('lib/bugger')
 
@@ -16,16 +16,16 @@ def install_launchd()
         <string>no.brujordet.bugger</string>
         <key>ProgramArguments</key>
         <array>
-            <string>#{CONFIG['ruby_bin']}</string>
+            <string>#{BugData.config.ruby_bin}</string>
             <string>#{__FILE__}</string>
             <string>notify</string>
         </array>
         <key>StandardErrorPath</key>
-        <string>#{CONFIG['bugger_log']}</string>
+        <string>/dev/null</string>
         <key>StandardOutPath</key>
-        <string>#{CONFIG['bugger_log']}</string>
+        <string>/dev/null</string>
         <key>StartInterval</key>
-        <integer>#{CONFIG['bugger_intervall']}</integer>
+        <integer>#{BugData.config.bugfreq}</integer>
         <key>RunAtLoad</key>
         <true/>
     </dict>
@@ -35,7 +35,7 @@ def install_launchd()
 end
 
 def create_db()	
-	puts "Creating empty db: #{CONFIG['bugger_db']}"
+	puts "Creating empty db: #{BugData.config.db_path}"
 	db = BuggerDB.new
 	db.create_empty_db
 	db.initialize_empty_db
@@ -51,7 +51,7 @@ def bugger_status()
 end
 
 def bugger_control(action)
-	cmd = "launchctl #{action} #{CONFIG['bugadm_plist']}"
+	cmd = "launchctl #{action} #{BugData.config.launchd_plist}"
 	system cmd 
     bugger_status
 end
@@ -63,6 +63,10 @@ end
 
 die_with_usage unless ARGV.length > 0
 parameter = ARGV[0]
+
+BugData.configure do |config|    
+    config.env="prod"
+end
 
 case parameter
 when 'install'
