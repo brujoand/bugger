@@ -4,8 +4,6 @@ require_relative('config/bugdata')
 require_relative('lib/rapport')
 require_relative('lib/bugger')
 
-## Lagre unixtime i db, 
-
 def install_launchd()
 	launchd_plist  = <<-EOS
 	<?xml version="1.0" encoding="UTF-8"?>

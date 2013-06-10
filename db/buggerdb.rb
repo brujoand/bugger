@@ -1,5 +1,3 @@
-#! /usr/bin/env ruby
-
 require 'SQLite3'
 require 'date'
 require_relative '../config/bugdata'

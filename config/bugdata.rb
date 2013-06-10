@@ -1,5 +1,3 @@
-#! /usr/bin/env ruby
-
 module BugData
     class << self
         attr_accessor :config
