@@ -81,7 +81,7 @@ class TaskTime
 	end
 
 	def self.last()
-	    sql = "select time_id from task_time where stop is null"
+	    sql = "select max(time_id) as time_id from task_time"
 	    time_id = BuggerDB.new.execute(sql, nil).first['time_id']
 	    by_id(time_id)
 	end
