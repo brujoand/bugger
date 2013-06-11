@@ -56,7 +56,7 @@ class Bugger
         title = "Bugger - What were you doing?"
         task_name = BugDialog.prompt_for_task(title, text, '')
         task = Task.by_name(task_name)
-        TaskTime.start_from(task.id, idle_start)
+        TaskTime.start(task.id, idle_start)
     end
 
     def idle?()

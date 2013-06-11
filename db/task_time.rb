@@ -2,7 +2,7 @@ require_relative 'BuggerDB'
 
 class TaskTime	
 
-    attr_reader :start, :last_update, :task_id
+    attr_reader :id, :start, :last_update, :task_id
 
 	def initialize(id, start, stop, last_update, task_id)
 		@id = id
@@ -54,13 +54,9 @@ class TaskTime
 
 	#### Static methods ####	
 
-	def self.start(task_id, time=Time.now.to_i)
-		TaskTime.start_from(task_id, time)
-	end
-
-	def self.start_from(task_id, start)
+	def self.start(task_id, start=now)
 		sql = "insert into task_time values(null, ?, null, ?, ?)"			
-	    time_id = BuggerDB.new.insert(sql, [start.to_i, Time.now.to_i, task_id])
+	    time_id = BuggerDB.new.insert(sql, [start.to_i, start.to_i, task_id])
 	    by_id(time_id)
 	end
 
@@ -76,10 +72,6 @@ class TaskTime
 	    extra_minutes = minutes - (hours * 60)        
 	    format('%02d', hours) + "h:" + format('%02d', extra_minutes) + "m"
 	end 
-
-	def self.datetime_to_string(date)
-        date.strftime("%Y-%m-%d %H:%M:%S")        
-    end
 
     def self.for_date(date)
     	sql = "select * from task_time where Date(start, 'unixepoch') = Date(?, 'unixepoch') order by start"

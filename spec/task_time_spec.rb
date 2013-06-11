@@ -1,5 +1,4 @@
 require 'spec_helper'
-require_relative '../config/bugdata'
 
 
 describe TaskTime do	
@@ -22,6 +21,10 @@ describe TaskTime do
 	    it "takes five parameters and returns a TaskTime object" do
 	        @task_time.should be_an_instance_of TaskTime
 	    end
+
+        it "should get it self by it's own id" do
+            TaskTime.by_id(@task_time.id).id.should == @task_time.id
+        end
 	end
 
 	describe "#end" do
@@ -39,6 +42,15 @@ describe TaskTime do
             @task_time.stop.should_not == @task_time.start
         end
 	end
+
+    describe "#downtime" do
+        it "checks if we have been sleeping, based on last_update" do
+            @task_time.end
+            task = Task.by_id('testing downtime')
+            start_time = Time.now.to_i - 36000
+            TaskTime.start(task, start_time).downtime?.should == true
+        end
+    end    
 
 	after :all do
 		@db.drop_db

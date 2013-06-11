@@ -1,4 +1,6 @@
 require 'rspec'
+require_relative '../config/bugdata'
 require_relative '../db/task_time'
+require_relative '../db/task'
 require_relative '../config/bugdata'
 require_relative '../db/buggerdb'
