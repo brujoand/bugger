@@ -5,7 +5,7 @@ describe TaskTime do
 
 	before :all do        
         BugData.configure do |config|
-            config.db_path = ':memory'
+            config.db_path = '/tmp/bugger_test.db'
             config.env="test"
         end
 		@db = BuggerDB.new()
