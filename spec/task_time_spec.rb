@@ -26,9 +26,18 @@ describe TaskTime do
 
 	describe "#end" do
 		it "ends a task_time and sets update to endtime" do
+            sleep(2)
 			@task_time.end
-			@task_time.stop.should == @task_time.last_update
+            @task_time = TaskTime.last
+			@task_time.stop.should == @task_time.last_update            
 		end
+
+        it "ends a task_time at a different time than start" do
+            sleep(2)
+            @task_time.end
+            @task_time = TaskTime.last
+            @task_time.stop.should_not == @task_time.start
+        end
 	end
 
 	after :all do

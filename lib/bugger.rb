@@ -19,7 +19,7 @@ class Bugger
         elsif task_time.downtime?
             puts 'We have been down'            
             task = prompt_for_task(task_time)
-            task_time.end_at(task_time.last_update)
+            task_time.end(task_time.last_update)
             TaskTime.start(task.id)  
         elsif action == 'notify'
             show_notification(task_time)

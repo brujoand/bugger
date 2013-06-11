@@ -2,6 +2,8 @@ require_relative 'BuggerDB'
 
 class TaskTime	
 
+    attr_reader :start, :last_update, :task_id
+
 	def initialize(id, start, stop, last_update, task_id)
 		@id = id
 		@start = start
@@ -11,24 +13,12 @@ class TaskTime
 		@db = BuggerDB.new
 	end
 
-    def start
-    	@start
-	end
-
 	def stop
 		if @stop.nil?
 			now
 		else
 			@stop
 		end
-	end
-
-	def last_update
-		@last_update
-	end
-
-	def task_id
-		@task_id
 	end
 
 	def seconds_spent()
@@ -44,13 +34,9 @@ class TaskTime
 		@db.execute(sql, [now, @id])
 	end
 
-	def end()    
-		end_at(now)
-	end
-
-	def end_at(time)
+	def end(time=now)
 		sql = "update task_time set stop=?, last_update=? where time_id=?"
-        @db.execute(sql, [time, now, @id])
+        @db.execute(sql, [time, time, @id])
 	end
 
 	def downtime?()
@@ -63,13 +49,13 @@ class TaskTime
 	end
 
 	def now()
-		Time.now.to_i
+		now = Time.now.to_i
 	end
 
 	#### Static methods ####	
 
-	def self.start(task_id)
-		TaskTime.start_from(task_id, Time.now)
+	def self.start(task_id, time=Time.now.to_i)
+		TaskTime.start_from(task_id, time)
 	end
 
 	def self.start_from(task_id, start)
