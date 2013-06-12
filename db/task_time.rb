@@ -48,13 +48,23 @@ class TaskTime
 		end
 	end
 
+    def idle?()
+        # This is kind of bad. fix please
+        idle_time=%x(echo $(($(ioreg -c IOHIDSystem | sed -e '/HIDIdleTime/!{ d' -e 't' -e '}' -e 's/.* = //g' -e 'q') / 1000000000))).to_i
+        if idle_time > 600
+            true
+        else
+            false
+        end
+    end
+
 	def now()
 		now = Time.now.to_i
 	end
 
 	#### Static methods ####	
 
-	def self.start(task_id, start=now)
+	def self.start(task_id, start=Time.now.to_i)
 		sql = "insert into task_time values(null, ?, null, ?, ?)"			
 	    time_id = BuggerDB.new.insert(sql, [start.to_i, start.to_i, task_id])
 	    by_id(time_id)

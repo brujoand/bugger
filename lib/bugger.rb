@@ -12,7 +12,7 @@ class Bugger
     def bug(action)
         task_time = TaskTime.last
 
-        if idle?
+        if task_time.idle?
             puts 'We have been idle'
             task_time.end 
             register_idle_time
@@ -57,15 +57,6 @@ class Bugger
         task_name = BugDialog.prompt_for_task(title, text, '')
         task = Task.by_name(task_name)
         TaskTime.start(task.id, idle_start)
-    end
-
-    def idle?()
-        idle_time=%x(echo $(($(ioreg -c IOHIDSystem | sed -e '/HIDIdleTime/!{ d' -e 't' -e '}' -e 's/.* = //g' -e 'q') / 1000000000))).to_i
-        if idle_time > 600
-            true
-        else
-            false
-        end
     end            
 
 end
