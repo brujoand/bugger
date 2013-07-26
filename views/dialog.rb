@@ -2,11 +2,10 @@
 
 require 'Qt'
 
-class BugDialog < Qt::Dialog	
+class BugDialog < Qt::Dialog
 	$saved_value=''
     def initialize(title, text, value)
-        super()
-        
+        parent = super()
         setWindowTitle title
         
         init_ui(text, value)
@@ -44,10 +43,9 @@ class BugDialog < Qt::Dialog
 
         connect save_button, SIGNAL('clicked()'), self, SLOT('save()')
 
-        setWindowFlags(Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Tool )
-        @text_edit.setFocus
+        setWindowFlags(Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint)
         @text_edit.selectAll
-
+        @text_edit.setFocus
     end
 
     slots 'save()'

@@ -1,7 +1,7 @@
 Bugger
 ======
 
-A simple task logger (curryntly only) for osx
+A simple task logger for osx
 
 As often as you feel is needed, by default every 15m, a notification shows your current task and time spent.
 You can activate the notification to add a new current task and the last will be ended.
@@ -29,10 +29,9 @@ bugadm (prompt|rapport) should cover your basic needs.
 
 # TODO
 
-
-- [x] Db rewrite to BCNF and use unixtime in stead of DateTime
+- [x] Db rewrite to BCNF and use unixtime instead of DateTime
 - [ ] Add support for keywords
 - [x] Take sleep/poweroff into account
 - [x] Account for idletime
-- [ ] Make platform independent
+- [ ] Allow task switching from cli/githooks
 
