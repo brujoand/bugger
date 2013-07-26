@@ -5,8 +5,8 @@ require_relative('lib/rapport')
 require_relative('lib/bugger')
 
 def install_launchd()
-	launchd_plist  = <<-EOS
-	<?xml version="1.0" encoding="UTF-8"?>
+  launchd_plist  = <<-EOS
+  <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
     <dict>
@@ -29,33 +29,33 @@ def install_launchd()
     </dict>
     </plist>
     EOS
-	File.open(CONFIG['bugadm_plist'], 'w') { |file| file.write(launchd_plist) }
+  File.open(CONFIG['bugadm_plist'], 'w') { |file| file.write(launchd_plist) }
 end
 
-def create_db()	
-	puts "Creating empty db: #{BugData.config.db_path}"
-	db = BuggerDB.new
-	db.create_empty_db
-	db.initialize_empty_db
+def create_db() 
+  puts "Creating empty db: #{BugData.config.db_path}"
+  db = BuggerDB.new
+  db.create_empty_db
+  db.initialize_empty_db
 end
 
 def bugger_status()
-	status = system 'launchctl list | grep no.brujordet.bugger > /dev/null'
-	if (status)
-		puts 'Bugger is loaded'
-	else
-		puts 'Bugger is unloaded'
-	end
+  status = system 'launchctl list | grep no.brujordet.bugger > /dev/null'
+  if (status)
+    puts 'Bugger is loaded'
+  else
+    puts 'Bugger is unloaded'
+  end
 end
 
 def bugger_control(action)
-	cmd = "launchctl #{action} #{BugData.config.launchd_plist}"
-	system cmd 
+  cmd = "launchctl #{action} #{BugData.config.launchd_plist}"
+  system cmd 
     bugger_status
 end
 
 def die_with_usage()
-	puts "usage: bugadm (install|load|unload|reload|status|prompt|notify|rapport)"
+  puts "usage: bugadm (install|load|unload|reload|status|prompt|notify|rapport)"
     exit
 end
 
@@ -68,24 +68,24 @@ end
 
 case parameter
 when 'install'
-	create_db
-	install_launchd
-	bugger_control 'load'
+  create_db
+  install_launchd
+  bugger_control 'load'
 when 
-	'load', 'unload'
-	bugger_control(parameter)
+  'load', 'unload'
+  bugger_control(parameter)
 when 'reload'
-	bugger_control('unload')
-	install_launchd
-	bugger_control('load')
+  bugger_control('unload')
+  install_launchd
+  bugger_control('load')
 when 'status'
-	bugger_status
+  bugger_status
 when 'prompt','notify'
-	Bugger.new.bug(parameter)
+  Bugger.new.bug(parameter)
 when 'rapport'
-	BugRapport.new.generateRapportFor(Time.now)	
+  BugRapport.new.generateRapportFor(Time.now) 
 else
-	die_with_usage
+  die_with_usage
 end
 
 

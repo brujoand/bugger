@@ -3,7 +3,7 @@
 require 'Qt'
 
 class BugDialog < Qt::Dialog
-	$saved_value=''
+    $saved_value=''
     def initialize(title, text, value)
         parent = super()
         setWindowTitle title
@@ -50,17 +50,17 @@ class BugDialog < Qt::Dialog
 
     slots 'save()'
 
-    def save()    	
-    	$saved_value = @text_edit.text
-    	$qApp.quit()
-    	
+    def save()      
+        $saved_value = @text_edit.text
+        $qApp.quit()
+        
     end
 
     def self.prompt_for_task(title, text, value)
-    	app = Qt::Application.new ARGV
-		BugDialog.new(title, text, value)
-		app.exec
-		$saved_value
+        app = Qt::Application.new ARGV
+        BugDialog.new(title, text, value)
+        app.exec
+        $saved_value
     end
 
 end

@@ -13,10 +13,10 @@ module BugData
         
         def initialize
             @base_path = File.expand_path('..', File.dirname(__FILE__ ))
-        	@ruby_bin = RbConfig.ruby
-        	@db_path = @base_path + '/db/bug.db'
-        	@bugfreq = 900
-        	@launchd_plist = '/Users/anders/Library/LaunchAgents/no.brujordet.bugger.plist'
+            @ruby_bin = RbConfig.ruby
+            @db_path = @base_path + '/db/bug.db'
+            @bugfreq = 900
+            @launchd_plist = '/Users/anders/Library/LaunchAgents/no.brujordet.bugger.plist'
             @env = "prod"
         end
     end

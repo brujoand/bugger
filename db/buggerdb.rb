@@ -3,10 +3,10 @@ require 'date'
 require_relative '../config/bugdata'
 
 class BuggerDB
-	def initialize(db_path = BugData.config.db_path)
-		@db = SQLite3::Database.new(db_path)
+    def initialize(db_path = BugData.config.db_path)
+        @db = SQLite3::Database.new(db_path)
         @db.results_as_hash = true
-	end
+    end
 
     def create_empty_db()
         sql_task = "create table 
