@@ -35,3 +35,17 @@ bugadm (prompt|rapport) should cover your basic needs.
 - [x] Account for idletime
 - [ ] Allow task switching from cli/githooks
 
+
+
+# The new flow
+
+launchctl set intervall to 180 (3min)
+check if we have an active task, if not check for idle then check if we need to notify (15min)
+  -> result is always at least on of the three, or at most all of them. # This is where the bugs live 
+idletask can be active even if another task is active
+we should be able to autocomplete with qt now.
+maybe use mongodb? # why?
+
+
+
+

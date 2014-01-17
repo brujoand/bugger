@@ -13,7 +13,7 @@ class BugDialog < Qt::Dialog
         resize 400, 100
         move 300, 300
 
-        show
+        exec
     end
     
     def init_ui(text, value)

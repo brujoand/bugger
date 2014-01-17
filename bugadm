@@ -44,7 +44,7 @@ def bugger_status()
   if (status)
     puts 'Bugger is loaded'
   else
-    puts 'Bugger is unloaded'
+    puts 'Bugger is not loaded'
   end
 end
 
@@ -63,7 +63,7 @@ die_with_usage unless ARGV.length > 0
 parameter = ARGV[0]
 
 BugData.configure do |config|    
-    config.env="prod"
+    # nothing? 
 end
 
 case parameter
