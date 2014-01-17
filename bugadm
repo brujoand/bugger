@@ -3,6 +3,7 @@
 require_relative('config/bugdata')
 require_relative('lib/rapport')
 require_relative('lib/bugger')
+require_relative('db/dbmodule')
 
 def install_launchd()
   launchd_plist  = <<-EOS
@@ -29,14 +30,14 @@ def install_launchd()
     </dict>
     </plist>
     EOS
-  File.open(CONFIG['bugadm_plist'], 'w') { |file| file.write(launchd_plist) }
+  #File.open(BugData.config.launchd_plist, 'w') { |file| file.write(launchd_plist) }
 end
 
 def create_db() 
+  include BuggerDB
   puts "Creating empty db: #{BugData.config.db_path}"
-  db = BuggerDB.new
-  db.create_empty_db
-  db.initialize_empty_db
+  db = DatabaseAccess.new(BugData.config.db_path)
+  db.prepare_schema
 end
 
 def bugger_status()

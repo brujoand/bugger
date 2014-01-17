@@ -1,14 +1,15 @@
 require 'date'
 require 'launchy'
 
-require_relative '../db/task_time'
+require_relative '../db/dbmodule'
 
 class BugRapport
+    include BuggerDB
     def generateRapportFor(date)        
         data = ''
-        TaskTime.for_date(date).each do |task_time|
-            task = Task.by_id(task_time.task_id)            
-            data += task_time.time_spent + ' - ' + task.name + '</br>'
+        Work_times.new.for_date(date).each do |work_time|
+            task = work_time.task
+            data += Work_times.new.time_spent(work_time) + ' - ' + task.name + '</br>'
         end
         html = queryToHtml(data)
         html_file=writeToTmpFile(html)

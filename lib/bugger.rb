@@ -1,62 +1,88 @@
 require 'date'
 require 'terminal-notifier'
 
-require_relative '../db/task'
-require_relative '../db/task_time'
+require_relative '../db/dbmodule'
 require_relative '../views/dialog'
 require_relative '../config/bugdata'
 
 
 class Bugger
+    include BuggerDB
+
+    @work_times
+    @tasks
 
     def bug(action)
-        task_time = TaskTime.last
+        @work_times = Work_times.new
+        @tasks = Tasks.new()        
+        work_time = @work_times.last        
 
-        if task_time.idle?
+        if are_we_idle?
             puts 'We have been idle'
-            task_time.end 
+            @work_times.end(work_time)
             register_idle_time
-        elsif task_time.downtime?
+        end
+
+        if have_we_had_downtime?
             puts 'We have been down'            
-            task = prompt_for_task(task_time)
-            task_time.end(task_time.last_update)
-            TaskTime.start(task.id)  
+            task = prompt_for_task(work_time)
+            work_time.end(work_time.last_update)
+            @work_times.create(task)
         elsif action == 'notify'
-            show_notification(task_time)
-            task_time.touch
+            show_notification(work_time)
+            @work_times.update(work_time)
         else            
-            task = prompt_for_task(task_time) 
-            if task_time.task_id != task.id
-                task_time.end
-                TaskTime.start(task.id)
+            task = prompt_for_task(work_time) 
+            if work_time.task.id != task.id
+                @work_times.end(work_time)
+                @work_times.create(task)
             else
-                task_time.touch
+                @work_times.update(work_time)
             end
         end
     end
 
-    def show_notification(task_time)
+    def show_notification(work_time)
         callback = BugData.config.ruby_bin + " " + File.dirname(__FILE__) + "/../bugadm prompt" 
-        title = "Time spent on task today: " + task_time.time_spent 
-        task = Task.by_id(task_time.task_id)
+        title = "Time spent on task today: " + @work_times.time_spent(work_time)
+        task = work_time.task
         TerminalNotifier.notify(task.name, :title => title, :execute => callback)        
     end
 
-    def prompt_for_task(task_time)
-        text = "Time spent on current task: #{task_time.time_spent}" 
+    def prompt_for_task(work_time)
+        
+        text = "Time spent on current task: #{@work_times.time_spent(work_time)}" 
         title = "Bugger - What are you working on?"
-        last_task = Task.by_id(task_time.task_id)
+        last_task = work_time.task
         task_name = BugDialog.prompt_for_task(title, text, last_task.name)
-        Task.by_name(task_name)
+        @tasks.by_name(task_name)
     end
 
-    def register_idle_time()
+    def are_we_idle?()
+        idle_time = %x[ #{'./bin/idler'} ]
+        if idle_time.to_i > BugData.config.bugfreq
+            true
+        else
+            false
+        end
+    end
+
+    def have_we_had_downtime?()
+        # Ask db for last task update / not idle or downtime
+        if 1 > 10
+            true
+        else
+            false
+        end
+    end
+
+    def register_idle_time() ####### fix, not working
         idle_start=Time.now
         text = "You have been idle since: #{idle_start.strftime('%H:%M')}"
         title = "Bugger - What were you doing?"
         task_name = BugDialog.prompt_for_task(title, text, '')
-        task = Task.by_name(task_name)
-        TaskTime.start(task.id, idle_start)
+        task = task.by_name(task_name)
+        workTime.create(task.id) ## ned to pass starttime for idle
     end            
 
 end
