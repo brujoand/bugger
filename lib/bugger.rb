@@ -19,11 +19,8 @@ class Bugger
 
         if are_we_idle?
             puts 'We have been idle'
-            @work_times.end(work_time)
-            register_idle_time
-        end
-
-        if have_we_had_downtime?
+            register_idle_time(work_time)
+        elsif have_we_had_downtime?
             puts 'We have been down'            
             task = prompt_for_task(work_time)
             work_time.end(work_time.last_update)
@@ -46,7 +43,7 @@ class Bugger
         callback = BugData.config.ruby_bin + " " + File.dirname(__FILE__) + "/../bugadm prompt" 
         title = "Time spent on task today: " + @work_times.time_spent(work_time)
         task = work_time.task
-        TerminalNotifier.notify(task.name, :title => title, :execute => callback)        
+        TerminalNotifier.notify(task.name, :title => title, :execute => callback, :group => 'no.brujordet.bugger')        
     end
 
     def prompt_for_task(work_time)
@@ -77,12 +74,14 @@ class Bugger
     end
 
     def register_idle_time() ####### fix, not working
-        idle_start=Time.now
-        text = "You have been idle since: #{idle_start.strftime('%H:%M')}"
-        title = "Bugger - What were you doing?"
-        task_name = BugDialog.prompt_for_task(title, text, '')
-        task = task.by_name(task_name)
-        workTime.create(task.id) ## ned to pass starttime for idle
+        if(work_time.name == 'idle')
+            work_times.update(work_time)
+        else
+            work_times.end(work_time)
+            idle_start=Time.now
+            task = tasks.by_name('idle')
+            work_times.create(task)
+        end            
     end            
 
 end

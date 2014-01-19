@@ -23,11 +23,13 @@ class BugDialog < Qt::Dialog
         hbox1 = Qt::HBoxLayout.new
         hbox2 = Qt::HBoxLayout.new
 
+
         text_label = Qt::Label.new(text, self)
         @text_edit = Qt::LineEdit.new self      
         @text_edit.setText value
        
         save_button = Qt::PushButton.new "Save", self
+        save_button.setDefault(true)
 
         vbox.addWidget text_label
 
@@ -41,9 +43,10 @@ class BugDialog < Qt::Dialog
 
         setLayout vbox
 
+        connect @text_edit, SIGNAL('returnPressed()'), self, SLOT('save()')
         connect save_button, SIGNAL('clicked()'), self, SLOT('save()')
 
-        setWindowFlags(Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint)
+        setWindowFlags(Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Tool)
         @text_edit.selectAll
         @text_edit.setFocus
     end
@@ -58,9 +61,8 @@ class BugDialog < Qt::Dialog
 
     def self.prompt_for_task(title, text, value)
         app = Qt::Application.new ARGV
-        BugDialog.new(title, text, value)
-        app.exec
-        $saved_value
+        dialog = BugDialog.new(title, text, value)
+        $saved_value        
     end
 
 end

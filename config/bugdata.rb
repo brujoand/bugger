@@ -15,9 +15,9 @@ module BugData
             @base_path = File.expand_path('..', File.dirname(__FILE__ ))
             @ruby_bin = RbConfig.ruby
             @db_path = @base_path + '/db/bug.db'
-            @bugfreq = 180 # Change this to say 180?
+            @bugfreq = 180 
             @plist_file = '/Users/anders/Library/LaunchAgents/no.brujordet.bugger.plist'
-            @idle_time = (@bugfreq * 5)
+            @idle_time = (@bugfreq * 3)
         end
     end
 
