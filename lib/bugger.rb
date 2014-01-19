@@ -59,7 +59,7 @@ class Bugger
     end
 
     def are_we_idle?()
-        idle_time = %x[ #{'./bin/idler'} ]
+        idle_time = %x[ #{'#{BugData.config.base_path}./bin/idler'} ]
         if idle_time.to_i > BugData.config.bugfreq
             true
         else

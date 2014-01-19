@@ -6,7 +6,7 @@ require_relative('lib/bugger')
 require_relative('db/dbmodule')
 
 def install_launchd()
-  bugadm_path = BugData.config.base_path + 'bugadm'
+  bugadm_path = BugData.config.base_path + '/bugadm'
   plist_data  = <<-EOS
   <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -18,11 +18,12 @@ def install_launchd()
         <array>
             <string>#{BugData.config.ruby_bin}</string>
             <string>#{bugadm_path}</string>
+            <string>notify</string>
         </array>
-        <key>StandardErrorPath</key>
-        <string>/dev/null</string>
         <key>StandardOutPath</key>
-        <string>/dev/null</string>
+        <string>/var/log/bugger.log</string>
+        <key>StandardErrorPath</key>
+        <string>/var/log/bugger.log</string>
         <key>StartInterval</key>
         <integer>#{BugData.config.bugfreq}</integer>
         <key>RunAtLoad</key>
@@ -42,13 +43,13 @@ def create_db()
 end
 
 def bugger_status()
-  status = %x[ #{"launchctl list | grep no.brujordet.bugger | awk '{print $2}'"} ]
+  status = %x[ #{"launchctl list | grep no.brujordet.bugger | awk '{print $2}' | tr -d '\n'"} ]
   if (status == '0')
-    puts 'Bugger is loaded'
+    puts 'Bugger is running'
   elsif (status.to_i  > 0)
       puts 'Bugger is having problems'
   else
-    puts 'Bugger is not loaded'
+    puts 'Bugger is not running'
   end
 end
 
@@ -60,8 +61,7 @@ def bugger_control(action)
   end
 
   cmd = "launchctl #{command} #{BugData.config.plist_file}"
-  system cmd 
-    bugger_status
+  system cmd
 end
 
 def reload()
@@ -69,6 +69,8 @@ def reload()
   system "rm #{BugData.config.plist_file}"
   install_launchd
   bugger_control('start')
+  sleep 1
+  bugger_status
 end
 
 def uninstall()
@@ -79,7 +81,7 @@ def uninstall()
 end
 
 def die_with_usage()
-  puts "usage: bugadm (install|uninstall|start|stop|reload|status|prompt|notify|rapport)"
+  puts "usage: bugadm (install|uninstall|start|stop|reload|restart|status|prompt|notify|rapport)"
     exit
 end
 
@@ -100,8 +102,15 @@ when 'uninstall'
 when 
   'start', 'stop'
   bugger_control(parameter)
+  sleep 1
+  bugger_status
 when 'reload'  
   reload
+when 'restart'
+  bugger_control 'stop'
+  bugger_control 'start'
+  sleep 1
+  bugger_status
 when 'status'
   bugger_status
 when 'prompt','notify'
