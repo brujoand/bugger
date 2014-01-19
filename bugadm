@@ -6,7 +6,8 @@ require_relative('lib/bugger')
 require_relative('db/dbmodule')
 
 def install_launchd()
-  launchd_plist  = <<-EOS
+  bugadm_path = BugData.config.base_path + 'bugadm'
+  plist_data  = <<-EOS
   <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
@@ -16,8 +17,7 @@ def install_launchd()
         <key>ProgramArguments</key>
         <array>
             <string>#{BugData.config.ruby_bin}</string>
-            <string>#{__FILE__}</string>
-            <string>notify</string>
+            <string>#{bugadm_path}</string>
         </array>
         <key>StandardErrorPath</key>
         <string>/dev/null</string>
@@ -30,7 +30,8 @@ def install_launchd()
     </dict>
     </plist>
     EOS
-  #File.open(BugData.config.launchd_plist, 'w') { |file| file.write(launchd_plist) }
+
+  File.open(BugData.config.plist_file, 'w') { |file| file.write(plist_data) }
 end
 
 def create_db() 
@@ -41,22 +42,44 @@ def create_db()
 end
 
 def bugger_status()
-  status = system 'launchctl list | grep no.brujordet.bugger > /dev/null'
-  if (status)
+  status = %x[ #{"launchctl list | grep no.brujordet.bugger | awk '{print $2}'"} ]
+  if (status == '0')
     puts 'Bugger is loaded'
+  elsif (status.to_i  > 0)
+      puts 'Bugger is having problems'
   else
     puts 'Bugger is not loaded'
   end
 end
 
 def bugger_control(action)
-  cmd = "launchctl #{action} #{BugData.config.launchd_plist}"
+  if(action == 'start')
+    command = 'load'
+  else
+    command = 'unload'
+  end
+
+  cmd = "launchctl #{command} #{BugData.config.plist_file}"
   system cmd 
     bugger_status
 end
 
+def reload()
+  bugger_control('stop')
+  system "rm #{BugData.config.plist_file}"
+  install_launchd
+  bugger_control('start')
+end
+
+def uninstall()
+  system 'rm db/bug.db'
+  bugger_control('stop')
+  system "rm #{BugData.config.plist_file}"
+  puts 'bye bye :('
+end
+
 def die_with_usage()
-  puts "usage: bugadm (install|load|unload|reload|status|prompt|notify|rapport)"
+  puts "usage: bugadm (install|uninstall|start|stop|reload|status|prompt|notify|rapport)"
     exit
 end
 
@@ -71,20 +94,20 @@ case parameter
 when 'install'
   create_db
   install_launchd
-  bugger_control 'load'
+  bugger_control 'start'
+when 'uninstall'
+  uninstall
 when 
-  'load', 'unload'
+  'start', 'stop'
   bugger_control(parameter)
-when 'reload'
-  bugger_control('unload')
-  install_launchd
-  bugger_control('load')
+when 'reload'  
+  reload
 when 'status'
   bugger_status
 when 'prompt','notify'
   Bugger.new.bug(parameter)
 when 'rapport'
-  BugRapport.new.generateRapportFor(Time.now) 
+  BugRapport.new.generateRapportFor(Time.now)
 else
   die_with_usage
 end

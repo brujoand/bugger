@@ -14,7 +14,7 @@ class Bugger
 
     def bug(action)
         @work_times = Work_times.new
-        @tasks = Tasks.new()        
+        @tasks = Tasks.new      
         work_time = @work_times.last        
 
         if are_we_idle?
